@@ -1,0 +1,11 @@
+Use the following command to ssh into the server.
+
+Make sure the CS230_1.pem.txt licence file is in your current directory and has the right permissions. Run `chmod 400 CS230_1.pem.txt' to set the permissions correctly if they are not.
+
+Then run `ssh -i "./CS230_1.pem.txt" ubuntu@ec2-52-204-230-109.compute-1.amazonaws.com` to log in to the server
+
+
+
+https://console.aws.amazon.com to start and stop
+
+MAKE SURE YOU STOP IT AFTER YOU'RE DONE

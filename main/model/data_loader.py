@@ -9,7 +9,7 @@ import torchvision.transforms as transforms
 # and http://pytorch.org/tutorials/beginner/data_loading_tutorial.html
 # define a training image loader that specifies transforms on images. See documentation for more details.
 train_transformer = transforms.Compose([
-    transforms.Resize(64),  # resize the image to 64x64 (remove if images are already 64x64)
+    # transforms.Resize(64),  # resize the image to 64x64 (remove if images are already 64x64)
     transforms.RandomHorizontalFlip(),  # randomly flip image horizontally
     transforms.ToTensor()])  # transform it into a torch tensor
 

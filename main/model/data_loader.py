@@ -4,6 +4,7 @@ import os
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 import torchvision.transforms as transforms
+import pdb
 
 # borrowed from http://pytorch.org/tutorials/advanced/neural_style_tutorial.html
 # and http://pytorch.org/tutorials/beginner/data_loading_tutorial.html
@@ -38,8 +39,8 @@ class GOPRODataset(Dataset):
             transform: (torchvision.transforms) transformation to apply on image
         """
         self.filenames = os.listdir(data_dir)
-        self.blur_filenames = [os.path.join(data_dir, f) for f in self.filenames if f.endswith('blur.jpg')]
-        self.sharp_filenames = [os.path.join(data_dir, f) for f in self.filenames if f.endswith('sharp.jpg')]
+        self.blur_filenames = [os.path.join(data_dir, f) for f in self.filenames if f.endswith('blur.png')]
+        self.sharp_filenames = [os.path.join(data_dir, f) for f in self.filenames if f.endswith('sharp.png')]
 
         # self.labels = [int(os.path.split(filename)[-1][0]) for filename in self.filenames]
         self.transform = transform
@@ -87,6 +88,8 @@ def fetch_dataloader(types, data_dir, params):
 
             # use the train_transformer if training data, else use eval_transformer without random flip
             if split == 'train':
+                my_dataset = GOPRODataset(path, train_transformer)
+                # pdb.set_trace()
                 dl = DataLoader(GOPRODataset(path, train_transformer), batch_size=params.batch_size, shuffle=True,
                                         num_workers=params.num_workers,
                                         pin_memory=params.cuda)

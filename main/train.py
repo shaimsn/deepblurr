@@ -18,7 +18,7 @@ from evaluate import evaluate
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='data/GOPRO_Dataset', help="Directory containing the dataset")
-parser.add_argument('--model_dir', default='experiments/base_model', help="Directory containing params.json")
+parser.add_argument('--model_dir', default='experiments/deblur_1', help="Directory containing params.json")
 parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
                     training")  # 'best' or 'train'
@@ -46,6 +46,7 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params):
 
     # Use tqdm for progress bar
     with tqdm(total=len(dataloader)) as t:
+        # pdb.set_trace()
         for i, (train_batch, labels_batch) in enumerate(dataloader):
             # move to GPU if available
             if params.cuda:
@@ -155,7 +156,7 @@ if __name__ == '__main__':
     json_path = os.path.join(args.model_dir, 'params.json')
     assert os.path.isfile(json_path), "No json configuration file found at {}".format(json_path)
     params = utils.Params(json_path)
-    pdb.set_trace()
+    # pdb.set_trace()
     # use GPU if available
     params.cuda = torch.cuda.is_available()
 

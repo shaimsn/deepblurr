@@ -19,7 +19,7 @@ parser.add_argument('--restore_file', default='best', help="name of the file in 
                      containing weights to load")
 
 
-def evaluate(model, loss_fn, dataloader, metrics, params, save_images=False, save_path='./test_images'):
+def evaluate_save(model, loss_fn, dataloader, metrics, params, save_images=False, save_path='./test_images'):
     """Evaluate the model on `num_steps` batches.
 
     Args:
@@ -115,6 +115,6 @@ if __name__ == '__main__':
     utils.load_checkpoint(os.path.join(args.model_dir, args.restore_file + '.pth.tar'), model)
 
     # Evaluate
-    test_metrics = evaluate(model, loss_fn, test_dl, metrics, params, save_dir=args.data_dir)
+    test_metrics = evaluate_save(model, loss_fn, test_dl, metrics, params, save_images=True, save_path=args.data_dir)
     save_path = os.path.join(args.model_dir, "metrics_test_{}.json".format(args.restore_file))
     utils.save_dict_to_json(test_metrics, save_path)

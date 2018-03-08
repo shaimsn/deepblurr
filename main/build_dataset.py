@@ -24,6 +24,7 @@ import os
 from PIL import Image
 from tqdm import tqdm
 import numpy as np
+import pdb
 
 SIZE = 64
 
@@ -34,10 +35,20 @@ parser.add_argument('--output_dir', default='data/GOPRO_Dataset', help="Where to
 
 def resize_and_save(filename, output_dir, size=SIZE):
     """Resize the image contained in `filename` and save it to the `output_dir`"""
+    filename_str_list = filename.split("/")
+    ixs = [3,5,4]
+    relevant_str = [filename_str_list[i] for i in ixs]
+    temp = relevant_str[1]
+    temp = temp[:-4]
+    relevant_str[1] = temp
+    temp = relevant_str[2]
+    temp = temp + '.png'
+    relevant_str[2] = temp
+    to_save = '_'.join(relevant_str)
     image = Image.open(filename)
     # Use bilinear interpolation instead of the default "nearest neighbor" method
     image = image.resize((size, size), Image.BILINEAR)
-    image.save(os.path.join(output_dir, filename.split('/')[-1]))
+    image.save(os.path.join(output_dir, to_save), quality=100)
 
 
 if __name__ == '__main__':
@@ -87,50 +98,60 @@ if __name__ == '__main__':
         for name in test_sharp_filenames:
             test_sharp_list.append(name)
 
-    print("train_blur_list", train_blur_list)
-    print()
-    print("train_sharp_list", train_sharp_list)
-    print()
-    print("test_blur_list", test_blur_list)
-    print()
-    print("test_sharp_list", test_sharp_list)
+    # print("train_blur_list", train_blur_list)
+    # print()
+    # print("train_sharp_list", train_sharp_list)
+    # print()
+    # print("test_blur_list", test_blur_list)
+    # print()
+    # print("test_sharp_list", test_sharp_list)
     #so far, train_blur_filenames, train_sharp_filenames, test_blur_filenames and test_sharp_filenames lists created
 
     # Split the images in 'train_signs' into 80% train and 20% val
 
+    # Shuffle with a fixed seed for reproducibility
     random.seed(230)
-    train_len = len(train_blur_filenames)
-    train_ixs = np.linspace(0,train_len-1,train_len, dtype=int)
-    # print(train_ixs)
-    # Make sure to always shuffle with a fixed seed so that the split is reproducible
-    # random.seed(230)
-    #
-    # filenames.sort()
-    # random.shuffle(filenames)
-    #
-    # split = int(0.8 * len(filenames))
-    # train_filenames = filenames[:split]
-    # val_filenames = filenames[split:]
-    #
-    # filenames = {'train': train_filenames,
-    #              'val': val_filenames,
-    #              'test': test_filenames}
-    #
-    # if not os.path.exists(args.output_dir):
-    #     os.mkdir(args.output_dir)
-    # else:
-    #     print("Warning: output dir {} already exists".format(args.output_dir))
-    #
-    # # Preprocess train, val and test
-    # for split in ['train', 'val', 'test']:
-    #     output_dir_split = os.path.join(args.output_dir, '{}_pics'.format(split))
-    #     if not os.path.exists(output_dir_split):
-    #         os.mkdir(output_dir_split)
-    #     else:
-    #         print("Warning: dir {} already exists".format(output_dir_split))
-    #
-    #     print("Processing {} data, saving preprocessed data to {}".format(split, output_dir_split))
-    #     for filename in tqdm(filenames[split]):
-    #         resize_and_save(filename, output_dir_split, size=SIZE)
-    #
-    # print("Done building dataset")
+    # all_image_blur_names = train_blur_list + test_blur_list
+    # all_image_sharp_names = train_sharp_list + test_sharp_list
+
+    train_blur_len = len(train_blur_list)
+
+    ixs_to_sort = np.linspace(0,train_blur_len-1,train_blur_len, dtype=int)
+    random.shuffle(ixs_to_sort)
+    train_len = train_blur_len*4//5
+
+    train_filenames_list = []
+    val_filenames_list = []
+    for i in range(len(ixs_to_sort)):
+        ix = ixs_to_sort[i]
+        if (i <= train_len):
+            train_filenames_list.append(train_blur_list[ix])
+            train_filenames_list.append(train_sharp_list[ix])
+        else:
+            val_filenames_list.append(train_blur_list[ix])
+            val_filenames_list.append(train_sharp_list[ix])
+
+
+    filenames = {'train': train_filenames_list,
+                 'val': val_filenames_list,
+                 'test': test_blur_list+test_sharp_list}
+
+    # pdb.set_trace()
+    if not os.path.exists(args.output_dir):
+        os.mkdir(args.output_dir)
+    else:
+        print("Warning: output dir {} already exists".format(args.output_dir))
+
+    # Preprocess train, val, and test
+    for split in ['train', 'val', 'test']:
+        output_dir_split = os.path.join(args.output_dir, '{}_pics'.format(split))
+        if not os.path.exists(output_dir_split):
+            os.mkdir(output_dir_split)
+        else:
+            print("Warning: dir {} already exists".format(output_dir_split))
+        print("Processing {} data, saving preprocessed data to {}".format(split, output_dir_split))
+        # pdb.set_trace()
+        for filename in tqdm(filenames[split]):
+            resize_and_save(filename, output_dir_split, size=SIZE)
+
+    print("Done building dataset")

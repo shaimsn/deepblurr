@@ -26,7 +26,7 @@ from tqdm import tqdm
 import numpy as np
 import pdb
 
-SIZE = 64
+SIZE = 256
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='data/GOPRO_Large', help="Directory with the GOPRO dataset")

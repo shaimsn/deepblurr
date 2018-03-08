@@ -7,5 +7,5 @@
     "save_summary_steps": 1,
     "num_workers": 4,
     "num_resblocks":19,
-    "filter_size_L1":64
+    "filter_size_L1":3
 }

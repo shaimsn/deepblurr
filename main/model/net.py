@@ -69,7 +69,7 @@ class Net(nn.Module):
         """
         inp_copy = s
         s = self.conv_RB_L1(self.relu1(self.conv_RB_L1(s)))
-        s = s + inp_copy  # skip layer
+        s = s + inp_copy  # skip connection
         return s
 
     def forward(self, s):
@@ -80,7 +80,7 @@ class Net(nn.Module):
             s: (Variable) contains a batch of images, of dimension batch_size x 3 x 64 x 64 .
 
         Returns:
-            out: (Variable) dimension batch_size x 6 with the log probabilities for the labels of each image.
+            out: (Variable) dimension batch_size x 3 x 64 x 64 with the deblurred versions of each image. 
 
         Note: the dimensions after each step are provided
         """
@@ -132,7 +132,9 @@ def loss_fn(model_outputs, true_outputs):
 
     # return -torch.sum(outputs[range(num_examples), labels])/num_examples
     # TODO: is this correct?
-    return 1./(num_examples*channels*width*height)*torch.sum(torch.norm(model_outputs-true_outputs))
+    norm_factor = 1./(num_examples*channels*width*height)
+    # return norm_factor*torch.sum([torch.norm(model_outputs[i]-true_outputs[i] for i in num_examples)])
+    return norm_factor*torch.sum(torch.norm(model_outputs-true_outputs))
 
 
 def accuracy(outputs, labels):
@@ -146,7 +148,7 @@ def accuracy(outputs, labels):
     Returns: (float) accuracy in [0,1]
     """
     outputs = np.argmax(outputs, axis=1)
-    return np.sum(outputs==labels)/float(labels.size)
+    return np.sum(outputs == labels)/float(labels.size)
 
 
 # maintain all metrics required in this dictionary- these are used in the training and evaluation loops

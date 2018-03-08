@@ -8,18 +8,24 @@ import torchvision.transforms as transforms
 # borrowed from http://pytorch.org/tutorials/advanced/neural_style_tutorial.html
 # and http://pytorch.org/tutorials/beginner/data_loading_tutorial.html
 # define a training image loader that specifies transforms on images. See documentation for more details.
-train_transformer = transforms.Compose([
-    # transforms.Resize(64),  # resize the image to 64x64 (remove if images are already 64x64)
-    transforms.RandomHorizontalFlip(),  # randomly flip image horizontally
-    transforms.ToTensor()])  # transform it into a torch tensor
+# train_transformer = transforms.Compose([
+#     # transforms.Resize(64),  # resize the image to 64x64 (remove if images are already 64x64)
+#     transforms.RandomHorizontalFlip(),  # randomly flip image horizontally
+#     transforms.ToTensor()])  # transform it into a torch tensor
+#
+# # loader for evaluation, no horizontal flip
+# eval_transformer = transforms.Compose([
+#     transforms.Resize(64),  # resize the image to 64x64 (remove if images are already 64x64)
+#     transforms.ToTensor()])  # transform it into a torch tensor
 
-# loader for evaluation, no horizontal flip
-eval_transformer = transforms.Compose([
-    transforms.Resize(64),  # resize the image to 64x64 (remove if images are already 64x64)
-    transforms.ToTensor()])  # transform it into a torch tensor
+
+# define a training image loader that specifies transforms on images.
+train_transformer = transforms.ToTensor()
+# loader for evaluation
+eval_transformer = transforms.ToTensor()
 
 
-class SIGNSDataset(Dataset):
+class GOPRODataset(Dataset):
     """
     A standard PyTorch definition of Dataset which defines the functions __len__ and __getitem__.
     """
@@ -32,14 +38,15 @@ class SIGNSDataset(Dataset):
             transform: (torchvision.transforms) transformation to apply on image
         """
         self.filenames = os.listdir(data_dir)
-        self.filenames = [os.path.join(data_dir, f) for f in self.filenames if f.endswith('.jpg')]
+        self.blur_filenames = [os.path.join(data_dir, f) for f in self.filenames if f.endswith('blur.jpg')]
+        self.sharp_filenames = [os.path.join(data_dir, f) for f in self.filenames if f.endswith('sharp.jpg')]
 
-        self.labels = [int(os.path.split(filename)[-1][0]) for filename in self.filenames]
+        # self.labels = [int(os.path.split(filename)[-1][0]) for filename in self.filenames]
         self.transform = transform
 
     def __len__(self):
         # return size of dataset
-        return len(self.filenames)
+        return len(self.blur_filenames)
 
     def __getitem__(self, idx):
         """
@@ -52,9 +59,12 @@ class SIGNSDataset(Dataset):
             image: (Tensor) transformed image
             label: (int) corresponding label of image
         """
-        image = Image.open(self.filenames[idx])  # PIL image
-        image = self.transform(image)
-        return image, self.labels[idx]
+        input_image = Image.open(self.blur_filenames[idx])  # PIL image
+        input_image = self.transform(input_image)
+        label_image = Image.open(self.sharp_filenames[idx])  # PIL image
+        label_image = self.transform(label_image)
+
+        return input_image, label_image
 
 
 def fetch_dataloader(types, data_dir, params):
@@ -73,15 +83,15 @@ def fetch_dataloader(types, data_dir, params):
 
     for split in ['train', 'val', 'test']:
         if split in types:
-            path = os.path.join(data_dir, "{}_signs".format(split))
+            path = os.path.join(data_dir, "{}_pics".format(split))
 
             # use the train_transformer if training data, else use eval_transformer without random flip
             if split == 'train':
-                dl = DataLoader(SIGNSDataset(path, train_transformer), batch_size=params.batch_size, shuffle=True,
+                dl = DataLoader(GOPRODataset(path, train_transformer), batch_size=params.batch_size, shuffle=True,
                                         num_workers=params.num_workers,
                                         pin_memory=params.cuda)
             else:
-                dl = DataLoader(SIGNSDataset(path, eval_transformer), batch_size=params.batch_size, shuffle=False,
+                dl = DataLoader(GOPRODataset(path, eval_transformer), batch_size=params.batch_size, shuffle=False,
                                 num_workers=params.num_workers,
                                 pin_memory=params.cuda)
 

@@ -9,6 +9,7 @@ import torch
 import torch.optim as optim
 from torch.autograd import Variable
 from tqdm import tqdm
+import pdb
 
 import utils
 import model.net as net
@@ -16,7 +17,7 @@ import model.data_loader as data_loader
 from evaluate import evaluate
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--data_dir', default='data/64x64_SIGNS', help="Directory containing the dataset")
+parser.add_argument('--data_dir', default='data/GOPRO_Dataset', help="Directory containing the dataset")
 parser.add_argument('--model_dir', default='experiments/base_model', help="Directory containing params.json")
 parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
@@ -151,7 +152,7 @@ if __name__ == '__main__':
     json_path = os.path.join(args.model_dir, 'params.json')
     assert os.path.isfile(json_path), "No json configuration file found at {}".format(json_path)
     params = utils.Params(json_path)
-
+    pdb.set_trace()
     # use GPU if available
     params.cuda = torch.cuda.is_available()
 

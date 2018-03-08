@@ -46,8 +46,6 @@ class Net(nn.Module):
         self.conv_out_L1 = nn.Conv2d(self.num_channels_L1, 3, self.filter_size_L1, stride=1, padding=padding_L1)
         self.relu1 = nn.ReLU()
 
-
-
         # self.bn1 = nn.BatchNorm2d(self.num_channels)
         # self.conv2 = nn.Conv2d(self.num_channels, self.num_channels*2, 3, stride=1, padding=1)
         # self.bn2 = nn.BatchNorm2d(self.num_channels*2)
@@ -127,6 +125,7 @@ def loss_fn(model_outputs, true_outputs):
           demonstrates how you can easily define a custom loss function.
     """
     #
+
     num_examples, channels, width, height = model_outputs.size()
     assert(model_outputs.size() == true_outputs.size())
 

@@ -80,7 +80,7 @@ class Net(nn.Module):
             s: (Variable) contains a batch of images, of dimension batch_size x 3 x 64 x 64 .
 
         Returns:
-            out: (Variable) dimension batch_size x 3 x 64 x 64 with the deblurred versions of each image. 
+            out: (Variable) dimension batch_size x 3 x 64 x 64 with the deblurred versions of each image.
 
         Note: the dimensions after each step are provided
         """

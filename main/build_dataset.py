@@ -23,6 +23,7 @@ import os
 
 from PIL import Image
 from tqdm import tqdm
+import numpy as np
 
 SIZE = 64
 
@@ -50,35 +51,57 @@ if __name__ == '__main__':
 
     # Get the foldernames inside GOPRO_Large/train
     train_foldernames = os.listdir(train_data_dir)
+    train_blur_list = []
+    train_sharp_list = []
     for foldername in train_foldernames:
         train_subfolder_dir = os.path.join(train_data_dir, foldername)
 
         subfolder_blur_dir = os.path.join(train_subfolder_dir, 'blur')
         train_blur_filenames = os.listdir(subfolder_blur_dir)
         train_blur_filenames = [os.path.join(subfolder_blur_dir, f) for f in train_blur_filenames if f.endswith('.png')]
+        for name in train_blur_filenames:
+            train_blur_list.append(name)
 
         subfolder_sharp_dir = os.path.join(train_subfolder_dir, 'sharp')
         train_sharp_filenames = os.listdir(subfolder_sharp_dir)
         train_sharp_filenames = [os.path.join(subfolder_sharp_dir, f) for f in train_sharp_filenames if f.endswith('.png')]
+        for name in train_sharp_filenames:
+            train_sharp_list.append(name)
 
     # Get the foldernames inside GOPRO_Large/test
     test_foldernames = os.listdir(test_data_dir)
+    test_blur_list = []
+    test_sharp_list = []
     for foldername in test_foldernames:
         test_subfolder_dir = os.path.join(test_data_dir, foldername)
 
         subfolder_blur_dir = os.path.join(test_subfolder_dir, 'blur')
         test_blur_filenames = os.listdir(subfolder_blur_dir)
         test_blur_filenames = [os.path.join(subfolder_blur_dir, f) for f in test_blur_filenames if f.endswith('.png')]
+        for name in test_blur_filenames:
+            test_blur_list.append(name)
 
         subfolder_sharp_dir = os.path.join(test_subfolder_dir, 'sharp')
         test_sharp_filenames = os.listdir(subfolder_sharp_dir)
         test_sharp_filenames = [os.path.join(subfolder_sharp_dir, f) for f in test_sharp_filenames if f.endswith('.png')]
+        for name in test_sharp_filenames:
+            test_sharp_list.append(name)
 
-    print("train_blur_filenames", train_blur_filenames); print("train_sharp_filenames", train_sharp_filenames)
-    print("test_blur_filenames", test_blur_filenames); print("test_sharp_filenames", test_sharp_filenames)
+    print("train_blur_list", train_blur_list)
+    print()
+    print("train_sharp_list", train_sharp_list)
+    print()
+    print("test_blur_list", test_blur_list)
+    print()
+    print("test_sharp_list", test_sharp_list)
     #so far, train_blur_filenames, train_sharp_filenames, test_blur_filenames and test_sharp_filenames lists created
 
     # Split the images in 'train_signs' into 80% train and 20% val
+
+    random.seed(230)
+    train_len = len(train_blur_filenames)
+    train_ixs = np.linspace(0,train_len-1,train_len, dtype=int)
+    # print(train_ixs)
     # Make sure to always shuffle with a fixed seed so that the split is reproducible
     # random.seed(230)
     #

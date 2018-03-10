@@ -34,7 +34,7 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.num_channels_L1 = params.num_channels_L1
         self.filter_size_L1 = params.filter_size_L1
-        self.num_resblocks = params.num_resblocks # This number is set in params.json
+        self.num_resblocks = params.num_resblocks  # This number is set in params.json
         
         # each of the convolution layers below have the arguments (input_channels, output_channels, filter_size,
         # stride, padding). We also include batch normalisation layers that help stabilise training.

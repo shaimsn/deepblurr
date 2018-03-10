@@ -41,7 +41,7 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params):
     model.train()
     
     # check cuda
-    print(params.cuda)
+    # print(params.cuda)
     # summary for current training loop and a running average object for loss
     summ = []
     loss_avg = utils.RunningAverage()

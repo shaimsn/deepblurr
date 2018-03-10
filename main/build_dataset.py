@@ -46,9 +46,13 @@ def resize_and_save(filename, output_dir, size=SIZE):
     relevant_str[2] = temp
     to_save = '_'.join(relevant_str)
     image = Image.open(filename)
+    rows, cols = image.size
+    x_ind = np.random.uniform(0, rows-size)
+    y_ind = np.random.uniform(0, cols-size)
+    cropped_image = image.crop([x_ind, y_ind, x_ind+size, y_ind+size])
     # Use bilinear interpolation instead of the default "nearest neighbor" method
-    image = image.resize((size, size), Image.BILINEAR)
-    image.save(os.path.join(output_dir, to_save), quality=100)
+    # image = image.resize((size, size), Image.BILINEAR)
+    cropped_image.save(os.path.join(output_dir, to_save), quality=100)
 
 
 if __name__ == '__main__':

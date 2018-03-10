@@ -22,7 +22,7 @@ parser.add_argument('--model_dir', default='experiments/deblur_1', help="Directo
 parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
                     training")  # 'best' or 'train'
-
+# Hi Paul
 
 def train(model, optimizer, loss_fn, dataloader, metrics, params):
     """Train the model on `num_steps` batches

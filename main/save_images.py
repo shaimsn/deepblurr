@@ -3,7 +3,7 @@
 import argparse
 import logging
 import os
-
+import matplotlib.cm as cm
 import numpy as np
 import torch
 from torch.autograd import Variable
@@ -11,6 +11,8 @@ import utils
 import model.net as net
 import model.data_loader as data_loader
 from PIL import Image
+import pdb
+import scipy.misc
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='data/GOPRO_Large_mini_out', help="Directory containing the dataset")
@@ -19,7 +21,7 @@ parser.add_argument('--restore_file', default='best', help="name of the file in 
                      containing weights to load")
 
 
-def evaluate(model, loss_fn, dataloader, metrics, params, save_images=False, save_path='./test_images'):
+def evaluate_save(model, loss_fn, dataloader, metrics, params, save_images=False, save_path='./test_images'):
     """Evaluate the model on `num_steps` batches.
 
     Args:
@@ -57,9 +59,13 @@ def evaluate(model, loss_fn, dataloader, metrics, params, save_images=False, sav
 
         # save the images
         num_images = output_batch.shape[0]
-        for image in num_images:
-            im = Image.fromarray(np.uint8(cm.gist_earth(output_batch[image]) * 255))  #TODO: gist_earth?????
-            im.save(os.path.join(save_path+'/output_images/', 'img{}_{}.png'.format(ind, image)), quality=100)
+        for image in range(num_images):
+            #pdb.set_trace()
+            temp = output_batch[image].copy()
+            temp = np.swapaxes(temp, 0, 2)
+            scipy.misc.imsave('./output_images/img{}_{}.png'.format(ind, image), temp)
+            #im = Image.fromarray(np.uint8(cm.gist_earth(output_batch[image]) * 255))  #TODO: gist_earth?????
+            #im.save(os.path.join(save_path+'/output_images/', 'img{}_{}.png'.format(ind, image)), quality=100)
 
         # compute all metrics on this batch
         summary_batch = {metric: metrics[metric](output_batch, labels_batch)
@@ -115,6 +121,6 @@ if __name__ == '__main__':
     utils.load_checkpoint(os.path.join(args.model_dir, args.restore_file + '.pth.tar'), model)
 
     # Evaluate
-    test_metrics = evaluate(model, loss_fn, test_dl, metrics, params, save_dir=args.data_dir)
+    test_metrics = evaluate_save(model, loss_fn, test_dl, metrics, params, save_images=True, save_path=args.data_dir)
     save_path = os.path.join(args.model_dir, "metrics_test_{}.json".format(args.restore_file))
     utils.save_dict_to_json(test_metrics, save_path)

@@ -3,10 +3,9 @@
     "batch_size": 32,
     "num_epochs": 10,
     "dropout_rate":0.8,
-    "num_channels_L1": 1e-3,
-    "save_summary_steps": 32,
-    "num_workers": 10,
-    "num_resblocks":0.8,
-    "num_workers": 10,
-    "filter_size_L1":0.8
+    "num_channels_L1": 64,
+    "save_summary_steps": 1,
+    "num_workers": 4,
+    "num_resblocks":19,
+    "filter_size_L1":3
 }

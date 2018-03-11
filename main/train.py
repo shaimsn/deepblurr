@@ -125,11 +125,12 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_
 
 
         # Evaluate for one epoch on validation set
-        val_metrics = evaluate(model, loss_fn, val_dataloader, metrics, params)
+#        val_metrics = evaluate(model, loss_fn, val_dataloader, metrics, params)
 
-        val_acc = val_metrics['accuracy']
-        is_best = val_acc>=best_val_acc
-
+#        val_acc = val_metrics['accuracy']
+#        is_best = val_acc>=best_val_acc
+        
+        is_best=True
         # Save weights
         utils.save_checkpoint({'epoch': epoch + 1,
                                'state_dict': model.state_dict(),

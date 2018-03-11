@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+import pdb
 
 class Net(nn.Module):
     """
@@ -40,7 +40,7 @@ class Net(nn.Module):
         # stride, padding). We also include batch normalisation layers that help stabilise training.
         # For more details on how to use these layers, check out the documentation.
         padding_L1 = int((self.filter_size_L1-1)/2)
-        self.conv_in_L1 = nn.Conv2d(3, self.num_channels_L1, self.filter_size_L1, stride=1, padding=padding_L1)
+        self.conv_in_L1 = nn.Conv2d(45, self.num_channels_L1, self.filter_size_L1, stride=1, padding=padding_L1)
         self.conv_RB_L1 = nn.Conv2d(self.num_channels_L1, self.num_channels_L1, self.filter_size_L1, stride=1,
                                     padding=padding_L1)
         self.conv_out_L1 = nn.Conv2d(self.num_channels_L1, 3, self.filter_size_L1, stride=1, padding=padding_L1)
@@ -127,6 +127,7 @@ def loss_fn(model_outputs, true_outputs):
     #
 
     num_examples, channels, width, height = model_outputs.size()
+    pdb.set_trace()
     assert(model_outputs.size() == true_outputs.size())
 
     # return -torch.sum(outputs[range(num_examples), labels])/num_examples

@@ -21,7 +21,7 @@ parser.add_argument('--restore_file', default='best', help="name of the file in 
                      containing weights to load")
 
 
-def evaluate_save(model, loss_fn, dataloader, metrics, params, iter_num=0):
+def evaluate_save(model, loss_fn, dataloader, metrics, params, iter_num=0, model_name='default'):
     """Evaluate the model on `num_steps` batches.
 
     Args:
@@ -59,6 +59,7 @@ def evaluate_save(model, loss_fn, dataloader, metrics, params, iter_num=0):
         num_images = len(out_names)
         for image in range(num_images):
             out_path = out_names[image].split('/')[:-1]
+            out_path.append(model_name)  # separate into different models
             out_path.append('iter_{}'.format(iter_num))
             out_path = '/'.join(out_path)
             out_name = out_names[image].split('/')[-1]
@@ -69,17 +70,17 @@ def evaluate_save(model, loss_fn, dataloader, metrics, params, iter_num=0):
             temp = np.swapaxes(temp, 0, 2)
             scipy.misc.imsave(out_path, temp)
 
-        # compute all metrics on this batch
-        summary_batch = {metric: metrics[metric](output_batch, labels_batch)
-                         for metric in metrics}
-        summary_batch['loss'] = loss.data[0]
-        summ.append(summary_batch)
-
-    # compute mean of all metrics in summary
-    metrics_mean = {metric:np.mean([x[metric] for x in summ]) for metric in summ[0]} 
-    metrics_string = " ; ".join("{}: {:05.3f}".format(k, v) for k, v in metrics_mean.items())
-    logging.info("- Eval metrics : " + metrics_string)
-    return metrics_mean
+    #     # compute all metrics on this batch
+    #     summary_batch = {metric: metrics[metric](output_batch, labels_batch)
+    #                      for metric in metrics}
+    #     summary_batch['loss'] = loss.data[0]
+    #     summ.append(summary_batch)
+    #
+    # # compute mean of all metrics in summary
+    # metrics_mean = {metric:np.mean([x[metric] for x in summ]) for metric in summ[0]}
+    # metrics_string = " ; ".join("{}: {:05.3f}".format(k, v) for k, v in metrics_mean.items())
+    # logging.info("- Eval metrics : " + metrics_string)
+    # return metrics_mean
 
 
 if __name__ == '__main__':

@@ -79,9 +79,8 @@ class GOPRODataset(Dataset):
         input_image = Image.open(self.blur_filenames[idx])
         input_image = np.array(input_image)
         input_image = np.reshape(input_image, (256, 256, 15, 3), order='F')
-        input_image = input_image[:, :, 3:13, :]
-        input_image = np.swapaxes(input_image, 2, 3)
-        input_image = np.reshape(input_image, (256, 256, 30), order='F')
+        # tested and this is actuall yhe correct version
+        input_image = np.reshape(input_image, (256, 256, 45), order='C')
         input_image = self.transform(input_image)
 
         path = self.blur_filenames[idx].split('/')[:-1]

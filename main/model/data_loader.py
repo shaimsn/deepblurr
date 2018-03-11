@@ -89,6 +89,8 @@ class GOPRODataset(Dataset):
         # This is the actual filename appended to the directory structure
         path.append('sharp_' + base_name)
         label_image = Image.open('/'.join(path))  #because one sharp image for multiple training images
+        label_image = np.array(label_image)
+        label_image = label_image[:, :, :3] # 4th channel is transparency... cut it out
         label_image = self.transform(label_image)
 
         return input_image, label_image

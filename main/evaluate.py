@@ -37,7 +37,7 @@ def evaluate(model, loss_fn, dataloader, metrics, params):
     summ = []
 
     # compute metrics over the dataset
-    for data_batch, labels_batch in dataloader:
+    for data_batch, labels_batch, _ in dataloader:
 
         # move to GPU if available
         if params.cuda:

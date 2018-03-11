@@ -41,7 +41,7 @@ def evaluate_save(model, loss_fn, dataloader, metrics, params, save_images=False
 
     # compute metrics over the dataset
     ind = 0
-    for data_batch, labels_batch in dataloader:
+    for data_batch, labels_batch, out_names in dataloader:
         ind += 1
         # move to GPU if available
         if params.cuda:

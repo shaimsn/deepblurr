@@ -61,8 +61,16 @@ class GOPRODataset(Dataset):
             label: (int) corresponding label of image
         """
         input_image = Image.open(self.blur_filenames[idx])  # PIL image
+        input_image = np.array(input_image)
+        input_image = np.reshape(input_image, (256,256,15,3), order='F')
+        input_image = np.swapaxes(input_image, 2, 3)
+        input_image = np.reshape(input_image, (256, 256, 45), order='F')
         input_image = self.transform(input_image)
+
         label_image = Image.open(self.sharp_filenames[idx])  # PIL image
+        label_image = np.reshape(label_image, (256,256,15,3), order='F')
+        label_image = np.swapaxes(label_image, 2, 3)
+        label_image = np.reshape(label_image, (256, 256, 45), order='F')
         label_image = self.transform(label_image)
 
         return input_image, label_image

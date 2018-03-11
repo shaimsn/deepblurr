@@ -46,7 +46,7 @@ def evaluate_save(model, loss_fn, dataloader, metrics, params, iter_num=0):
             data_batch, labels_batch = data_batch.cuda(async=True), labels_batch.cuda(async=True)
         # fetch the next evaluation batch
         data_batch, labels_batch = Variable(data_batch), Variable(labels_batch)
-        pdb.set_trace()
+        # pdb.set_trace()
         # compute model output
         output_batch = model(data_batch)
         loss = loss_fn(output_batch, labels_batch)

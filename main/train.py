@@ -20,7 +20,7 @@ from save_images import evaluate_save
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='data/WF_final', help="Directory containing the dataset")
 parser.add_argument('--model_dir', default='experiments/deblur_1', help="Directory containing params.json")
-parser.add_argument('--restore_file', default='last',
+parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
                     training")  # 'best' or 'train'
 # Hi Paul
@@ -124,7 +124,7 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_
         logging.info("Epoch {}/{}".format(epoch + 1, params.num_epochs))
 
         # compute number of batches in one epoch (one full pass over the training set)
-        train(model, optimizer, loss_fn, train_dataloader, metrics, params, val_dataloader=val_dataloader)
+        train(model, optimizer, loss_fn, train_dataloader, metrics, params, val_dataloader=None)
 
 
 

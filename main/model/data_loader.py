@@ -94,7 +94,11 @@ class GOPRODataset(Dataset):
         label_image = label_image[:, :, :3] # 4th channel is transparency... cut it out
         label_image = self.transform(label_image)
 
-        return input_image, label_image
+        path = self.blur_filenames[idx].split('/')[:-1]
+        output_name = '_'.join(self.blur_filenames[idx].split('/')[-1].split('_')[1:])
+        path.append('out_'+output_name)
+
+        return input_image, label_image, '/'.join(path)
 
 
 def fetch_dataloader(types, data_dir, params):

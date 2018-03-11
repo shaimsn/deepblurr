@@ -84,7 +84,7 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params):
             # update the average loss
             loss_avg.update(loss.data[0])
 
-            t.set_postfix(loss='{:05.3f}'.format(loss_avg()))
+            t.set_postfix(loss='{:05.7f}'.format(loss_avg()))
             t.update()
 
     # compute mean of all metrics in summary

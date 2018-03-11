@@ -157,7 +157,6 @@ def psnr(outputs, labels):
 
 # maintain all metrics required in this dictionary- these are used in the training and evaluation loops
 metrics = {
-    'loss': loss_fn,
     'psnr': psnr,
     # could add more metrics such as accuracy for each token type
 }

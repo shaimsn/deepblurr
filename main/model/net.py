@@ -153,7 +153,16 @@ def psnr(outputs, labels):
     # outputs = np.argmax(outputs, axis=1)
     # return np.sum(outputs == labels)/float(labels.size)
     # return 1./loss_fn(outputs, labels)  # for now just copy loss fcn but invert since high accuracy is best
-    return compare_psnr(labels, outputs)
+    # return compare_psnr(labels, outputs)
+    batch_size, width, height, channels = outputs.shape
+    psnrs = np.zeros(batch_size)
+    for batch in range(batch_size):
+        mse = np.mean(np.square(outputs[batch] - labels[batch]))
+        true_min, true_max = np.min(outputs[batch]), np.max(outputs[batch])
+        data_range = true_max = true_min
+        psnrs[batch] = 10 * np.log10((data_range ** 2) / mse)
+    return np.mean(psnrs)
+
 
 # maintain all metrics required in this dictionary- these are used in the training and evaluation loops
 metrics = {

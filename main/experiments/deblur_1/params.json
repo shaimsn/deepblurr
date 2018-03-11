@@ -5,7 +5,7 @@
     "num_epochs": 6,
     "dropout_rate":0.8,
     "num_channels_L1": 64,
-    "save_summary_steps": 4,
+    "save_summary_steps": 1,
     "num_workers": 4,
     "num_resblocks":19,
     "filter_size_L1":3,

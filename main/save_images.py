@@ -15,7 +15,7 @@ import pdb
 import scipy.misc
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--data_dir', default='data/GOPRO_Large_mini_out', help="Directory containing the dataset")
+parser.add_argument('--data_dir', default='data/WF_final', help="Directory containing the dataset")
 parser.add_argument('--model_dir', default='experiments/deblur_1', help="Directory containing params.json")
 parser.add_argument('--restore_file', default='best', help="name of the file in --model_dir \
                      containing weights to load")
@@ -48,7 +48,7 @@ def evaluate_save(model, loss_fn, dataloader, metrics, params, save_images=False
             data_batch, labels_batch = data_batch.cuda(async=True), labels_batch.cuda(async=True)
         # fetch the next evaluation batch
         data_batch, labels_batch = Variable(data_batch), Variable(labels_batch)
-        
+        pdb.set_trace()
         # compute model output
         output_batch = model(data_batch)
         loss = loss_fn(output_batch, labels_batch)

@@ -119,11 +119,11 @@ def fetch_dataloader(types, data_dir, params):
             if split == 'train':
                 my_dataset = GOPRODataset(path, train_transformer)
                 # pdb.set_trace()
-                dl = DataLoader(GOPRODataset(path, train_transformer), batch_size=params.batch_size, shuffle=True,
+                dl = DataLoader(GOPRODataset(path, train_transformer), batch_size=params.train_batch_size, shuffle=True,
                                         num_workers=params.num_workers,
                                         pin_memory=params.cuda)
             else:
-                dl = DataLoader(GOPRODataset(path, eval_transformer), batch_size=params.batch_size, shuffle=False,
+                dl = DataLoader(GOPRODataset(path, eval_transformer), batch_size=params.eval_batch_size, shuffle=False,
                                 num_workers=params.num_workers,
                                 pin_memory=params.cuda)
 

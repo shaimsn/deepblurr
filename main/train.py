@@ -17,7 +17,7 @@ import model.data_loader as data_loader
 from evaluate import evaluate
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--data_dir', default='data/GOPRO_Large_mini_out', help="Directory containing the dataset")
+parser.add_argument('--data_dir', default='data/WF_final', help="Directory containing the dataset")
 parser.add_argument('--model_dir', default='experiments/deblur_1', help="Directory containing params.json")
 parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \

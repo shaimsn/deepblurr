@@ -21,7 +21,7 @@ parser.add_argument('--restore_file', default='best', help="name of the file in 
                      containing weights to load")
 
 
-def evaluate_save(model, loss_fn, dataloader, metrics, params, save_images=False, save_path='./test_images'):
+def evaluate_save(model, loss_fn, dataloader, metrics, params, iter_num=0):
     """Evaluate the model on `num_steps` batches.
 
     Args:
@@ -58,9 +58,16 @@ def evaluate_save(model, loss_fn, dataloader, metrics, params, save_images=False
         # save the images
         num_images = len(out_names)
         for image in range(num_images):
+            out_path = out_names[image].split('/')[:-1]
+            out_path.append('iter_{}'.format(iter_num))
+            out_path = '/'.join(out_path)
+            out_name = out_names[image].split('/')[-1]
+            if not os.path.exists(out_path):
+                os.makedirs(out_path)
+            out_path = out_path + '/' + out_name
             temp = output_batch[image].copy()
             temp = np.swapaxes(temp, 0, 2)
-            scipy.misc.imsave(out_names[image], temp)
+            scipy.misc.imsave(out_path, temp)
 
         # compute all metrics on this batch
         summary_batch = {metric: metrics[metric](output_batch, labels_batch)
@@ -99,8 +106,8 @@ if __name__ == '__main__':
     logging.info("Creating the dataset...")
 
     # fetch dataloaders
-    dataloaders = data_loader.fetch_dataloader(['test'], args.data_dir, params)
-    test_dl = dataloaders['test']
+    dataloaders = data_loader.fetch_dataloader(['val'], args.data_dir, params)
+    test_dl = dataloaders['val']
 
     logging.info("- done.")
 

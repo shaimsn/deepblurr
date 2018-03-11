@@ -39,15 +39,15 @@ class GOPRODataset(Dataset):
             transform: (torchvision.transforms) transformation to apply on image
         """
         self.filenames = os.listdir(data_dir)
-        self.blur_filenames = [os.path.join(data_dir, f) for f in self.filenames if f.endswith('blur.png')]
-        self.sharp_filenames = [os.path.join(data_dir, f) for f in self.filenames if f.endswith('sharp.png')]
+        self.blur_filenames = [os.path.join(data_dir, f) for f in self.filenames if f.startswith('blur')]
+        self.sharp_filenames = [os.path.join(data_dir, f) for f in self.filenames if f.startswith('sharp')]
 
         # self.labels = [int(os.path.split(filename)[-1][0]) for filename in self.filenames]
         self.transform = transform
 
     def __len__(self):
         # return size of dataset
-        return len(self.blur_filenames)
+        return len(self.sharp_filenames)
 
     def __getitem__(self, idx):
         """
@@ -59,15 +59,35 @@ class GOPRODataset(Dataset):
         Returns:
             image: (Tensor) transformed image
             label: (int) corresponding label of image
+
+                    base_fname = self.sharp_filenames[idx].split('/')[-1].split('.')[0]
+        extension = self.sharp_filenames[idx].split('/')[-1].split('.')[1]
+        path = self.sharp_filenames[idx].split('/')[:-2]
+        path.append("kernels_dataset")
+        path.append(base_fname+"_k1."+extension)
+        blur_fname = "/".join(path)
+
+
+
+        # input_image = Image.open(self.blur_filenames[idx])  # PIL image
+        # input_image = self.transform(input_image)
+        # label_image = Image.open(self.sharp_filenames[idx])  # PIL image
+        # label_image = self.transform(label_image)
         """
-        input_image = Image.open(self.blur_filenames[idx])  # PIL image
+
+        input_image = Image.open(self.blur_filenames[idx])
         input_image = np.array(input_image)
-        input_image = np.reshape(input_image, (256,256,15,3), order='F')
+        input_image = np.reshape(input_image, (256, 256, 15, 3), order='F')
         input_image = np.swapaxes(input_image, 2, 3)
         input_image = np.reshape(input_image, (256, 256, 45), order='F')
         input_image = self.transform(input_image)
 
-        label_image = Image.open(self.sharp_filenames[idx])  # PIL image
+        path = self.blur_filenames[idx].split('/')[:-1]
+        # eliminate path and blur_prefix from fname
+        base_name = '_'.join(self.blur_filenames[idx].split('/')[-1].split('_')[2:])
+        # This is the actual filename appended to the directory structure
+        path.append('sharp_' + base_name)
+        label_image = Image.open('/'.join(path))  #because one sharp image for multiple training images
         label_image = self.transform(label_image)
 
         return input_image, label_image

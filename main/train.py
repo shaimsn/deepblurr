@@ -130,7 +130,7 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_
             model_name = model_dir.split('/')[-1]
             evaluate_save(model, loss_fn, val_dataloader, metrics, params, iter_num=epoch, model_name=model_name)
 
-        val_acc = val_metrics['accuracy']
+        val_acc = val_metrics['psnr']
         is_best = val_acc>=best_val_acc
         
 #        is_best=True

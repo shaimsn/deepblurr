@@ -40,9 +40,7 @@ def evaluate_save(model, loss_fn, dataloader, metrics, params, save_images=False
     summ = []
 
     # compute metrics over the dataset
-    ind = 0
     for data_batch, labels_batch, out_names in dataloader:
-        ind += 1
         # move to GPU if available
         if params.cuda:
             data_batch, labels_batch = data_batch.cuda(async=True), labels_batch.cuda(async=True)
@@ -58,14 +56,11 @@ def evaluate_save(model, loss_fn, dataloader, metrics, params, save_images=False
         labels_batch = labels_batch.data.cpu().numpy()
 
         # save the images
-        num_images = output_batch.shape[0]
+        num_images = len(out_names)
         for image in range(num_images):
-            #pdb.set_trace()
             temp = output_batch[image].copy()
             temp = np.swapaxes(temp, 0, 2)
-            scipy.misc.imsave('./output_images/img{}_{}.png'.format(ind, image), temp)
-            #im = Image.fromarray(np.uint8(cm.gist_earth(output_batch[image]) * 255))  #TODO: gist_earth?????
-            #im.save(os.path.join(save_path+'/output_images/', 'img{}_{}.png'.format(ind, image)), quality=100)
+            scipy.misc.imsave(out_names[image], temp)
 
         # compute all metrics on this batch
         summary_batch = {metric: metrics[metric](output_batch, labels_batch)

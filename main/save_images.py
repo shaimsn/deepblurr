@@ -69,7 +69,7 @@ def evaluate_save(model, loss_fn, dataloader, metrics, params, iter_num=0, model
             temp = output_batch[image].copy()
             temp = np.swapaxes(temp, 0, 2)
             temp = np.swapaxes(temp, 0, 1)
-            print('out_path = {}'.format(out_path))
+            # print('out_path = {}'.format(out_path))
             scipy.misc.imsave(out_path, temp)
 
     #     # compute all metrics on this batch

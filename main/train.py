@@ -25,7 +25,7 @@ parser.add_argument('--restore_file', default=None,
                     training")  # 'best' or 'train'
 # Hi Paul
 
-def train(model, optimizer, loss_fn, dataloader, metrics, params, val_dataloader=None):
+def train(model, optimizer, loss_fn, dataloader, metrics, params):
     """Train the model on `num_steps` batches
 
     Args:
@@ -81,9 +81,6 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params, val_dataloader
                 summary_batch['loss'] = loss.data[0]
                 summ.append(summary_batch)
 
-                if val_dataloader is not None:
-                    evaluate_save(model, loss_fn, val_dataloader, metrics, params, iter_num=i)
-
             # update the average loss
             loss_avg.update(loss.data[0])
 
@@ -124,12 +121,14 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_
         logging.info("Epoch {}/{}".format(epoch + 1, params.num_epochs))
 
         # compute number of batches in one epoch (one full pass over the training set)
-        train(model, optimizer, loss_fn, train_dataloader, metrics, params, val_dataloader=None)
+        train(model, optimizer, loss_fn, train_dataloader, metrics, params)
 
 
 
         # Evaluate for one epoch on validation set
         val_metrics = evaluate(model, loss_fn, val_dataloader, metrics, params)
+
+        evaluate_save(model, loss_fn, val_dataloader, metrics, params, iter_num=epoch)
 
         val_acc = val_metrics['accuracy']
         is_best = val_acc>=best_val_acc

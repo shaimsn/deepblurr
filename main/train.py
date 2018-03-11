@@ -89,7 +89,7 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params):
 
     # compute mean of all metrics in summary
     metrics_mean = {metric:np.mean([x[metric] for x in summ]) for metric in summ[0]}
-    metrics_string = " ; ".join("{}: {:05.3f}".format(k, v) for k, v in metrics_mean.items())
+    metrics_string = " ; ".join("{}: {:05.7f}".format(k, v) for k, v in metrics_mean.items())
     logging.info("- Train metrics: " + metrics_string)
 
 
@@ -127,6 +127,7 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_
         val_metrics = evaluate(model, loss_fn, val_dataloader, metrics, params)
 
         if epoch % params.save_image_epochs == 0:
+            print('SAVING IMAGES')
             model_name = model_dir.split('/')[-1]
             evaluate_save(model, loss_fn, val_dataloader, metrics, params, iter_num=epoch, model_name=model_name)
 

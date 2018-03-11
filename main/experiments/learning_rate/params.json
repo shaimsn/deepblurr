@@ -9,5 +9,5 @@
     "num_workers": 4,
     "num_resblocks":19,
     "filter_size_L1":3,
-    "save_image_epochs": 2
+    "save_image_epochs": 1
 }

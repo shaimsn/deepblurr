@@ -127,7 +127,7 @@ def loss_fn(model_outputs, true_outputs):
     #
 
     num_examples, channels, width, height = model_outputs.size()
-    pdb.set_trace()
+    # pdb.set_trace()
     assert(model_outputs.size() == true_outputs.size())
 
     # return -torch.sum(outputs[range(num_examples), labels])/num_examples

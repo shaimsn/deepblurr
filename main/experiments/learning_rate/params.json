@@ -2,11 +2,11 @@
     "learning_rate": 1e-2,
     "train_batch_size": 2,
     "eval_batch_size": 1,
-    "num_epochs": 10,
+    "num_epochs": 6,
     "dropout_rate":0.8,
     "num_channels_L1": 64,
     "save_summary_steps": 1,
-    "num_workers": 2,
+    "num_workers": 4,
     "num_resblocks":19,
     "filter_size_L1":3,
     "save_image_epochs": 2

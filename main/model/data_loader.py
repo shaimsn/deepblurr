@@ -45,7 +45,7 @@ class GOPRODataset(Dataset):
 
         # self.labels = [int(os.path.split(filename)[-1][0]) for filename in self.filenames]
         self.transform = transform
-        self.input_norm = True
+        self.input_norm = False
         self.eps = 1e-4
        
     def __len__(self):

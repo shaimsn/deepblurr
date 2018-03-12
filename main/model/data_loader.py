@@ -45,6 +45,7 @@ class GOPRODataset(Dataset):
 
         # self.labels = [int(os.path.split(filename)[-1][0]) for filename in self.filenames]
         self.transform = transform
+        self.input_norm = True
 
     def __len__(self):
         # return size of dataset
@@ -80,6 +81,11 @@ class GOPRODataset(Dataset):
         input_image = np.array(input_image)
         input_image = np.reshape(input_image, (256, 256, 15, 3), order='F')
         # tested and this is actually the correct version
+        if self.input_norm:
+            for img in range(15):
+                mn = np.mean(input_image[:, :, img, :])
+                dev = np.std(input_image[:, :, img, :])
+                input_image[:, :, img, :] = (input_image[:, :, img, :] - mn)/dev
         input_image = np.reshape(input_image, (256, 256, 45), order='C')
         input_image = self.transform(input_image)
 

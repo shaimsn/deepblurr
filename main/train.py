@@ -20,7 +20,7 @@ from save_images import evaluate_save
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='data/WF_final', help="Directory containing the dataset")
 parser.add_argument('--model_dir', default='experiments/learning_rate', help="Directory containing params.json")
-parser.add_argument('--restore_file', default=None,
+parser.add_argument('--restore_file', default='last',
                     help="Optional, name of the file in --model_dir containing weights to reload before \
                     training")  # 'best' or 'train'
 # Hi Paul
@@ -127,7 +127,7 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_
         val_metrics = evaluate(model, loss_fn, val_dataloader, metrics, params)
 
         if epoch % params.save_image_epochs == 0:
-            print('SAVING IMAGES')
+            logging.info('SAVING IMAGES')
             model_name = model_dir.split('/')[-1]
             evaluate_save(model, loss_fn, val_dataloader, metrics, params, iter_num=epoch, model_name=model_name)
 

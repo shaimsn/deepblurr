@@ -16,7 +16,7 @@ import scipy.misc
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='data/WF_final', help="Directory containing the dataset")
-parser.add_argument('--model_dir', default='experiments/deblur_1', help="Directory containing params.json")
+parser.add_argument('--model_dir', default='experiments/learning_rate', help="Directory containing params.json")
 parser.add_argument('--restore_file', default='best', help="name of the file in --model_dir \
                      containing weights to load")
 
@@ -109,8 +109,9 @@ if __name__ == '__main__':
     logging.info("Creating the dataset...")
 
     # fetch dataloaders
-    dataloaders = data_loader.fetch_dataloader(['val'], args.data_dir, params)
-    test_dl = dataloaders['val']
+    setname = 'train'
+    dataloaders = data_loader.fetch_dataloader([setname], args.data_dir, params)
+    test_dl = dataloaders[setname]
 
     logging.info("- done.")
 
@@ -126,6 +127,6 @@ if __name__ == '__main__':
     utils.load_checkpoint(os.path.join(args.model_dir, args.restore_file + '.pth.tar'), model)
 
     # Evaluate
-    test_metrics = evaluate_save(model, loss_fn, test_dl, metrics, params, save_images=True, save_path=args.data_dir)
-    save_path = os.path.join(args.model_dir, "metrics_test_{}.json".format(args.restore_file))
+    test_metrics = evaluate_save(model, loss_fn, test_dl, metrics, params, iter_num=0, model_name='learning_rate_'+setname)
+    save_path = os.path.join(args.model_dir, "metrics_{}_{}.json".format(setname, args.restore_file))
     utils.save_dict_to_json(test_metrics, save_path)

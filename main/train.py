@@ -19,8 +19,8 @@ from save_images import evaluate_save
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='data/WF_final', help="Directory containing the dataset")
-parser.add_argument('--model_dir', default='experiments/learning_rate', help="Directory containing params.json")
-parser.add_argument('--restore_file', default='last',
+parser.add_argument('--model_dir', default='experiments/batch_size', help="Directory containing params.json")
+parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
                     training")  # 'best' or 'train'
 # Hi Paul

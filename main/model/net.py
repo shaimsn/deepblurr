@@ -47,6 +47,7 @@ class Net(nn.Module):
                                     padding=padding_L1)
         self.conv_out_L1 = nn.Conv2d(self.num_channels_L1, 3, self.filter_size_L1, stride=1, padding=padding_L1)
         self.relu1 = nn.ReLU()
+        self.bn1 = nn.BatchNorm2d(self.num_channels_L1)
 
         # self.bn1 = nn.BatchNorm2d(self.num_channels)
         # self.conv2 = nn.Conv2d(self.num_channels, self.num_channels*2, 3, stride=1, padding=1)
@@ -68,7 +69,7 @@ class Net(nn.Module):
         :return:
         """
         inp_copy = s
-        s = self.conv_RB_L1(self.relu1(self.conv_RB_L1(s)))
+        s = self.bn1(self.conv_RB_L1(self.relu1(self.bn1(self.conv_RB_L1(s)))))
         s = s + inp_copy  # skip connection
         return s
 

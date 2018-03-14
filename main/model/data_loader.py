@@ -5,6 +5,7 @@ from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 import torchvision.transforms as transforms
 import pdb
+import torch
 import numpy as np
 
 # borrowed from http://pytorch.org/tutorials/advanced/neural_style_tutorial.html
@@ -78,6 +79,7 @@ class GOPRODataset(Dataset):
         # label_image = self.transform(label_image)
         """
 
+        # First get WF stack (blur_wsX_*)
         input_image = Image.open(self.blur_filenames[idx])
         input_image = np.array(input_image)
         input_image = np.reshape(input_image, (256, 256, 15, 3), order='F')
@@ -92,6 +94,23 @@ class GOPRODataset(Dataset):
         input_image = np.reshape(input_image, (256, 256, 45), order='C')
         input_image = self.transform(input_image)
 
+        # Next get original blurry image (orig_bX_*)
+        path = self.blur_filenames[idx].split('/')[:-1]
+        # eliminate path and blur_prefix from fname
+        base_name = '_'.join(self.blur_filenames[idx].split('/')[-1].split('_')[2:])
+        bnum = self.blur_filenames[idx].split('/')[-1].split('_')[1]
+        # This is the actual filename appended to the directory structure
+        path.append('orig_' + str(bnum) + '_' + base_name)
+        orig_image = Image.open('/'.join(path))  # because one sharp image for multiple training images
+        orig_image = np.array(orig_image)
+        orig_image = orig_image[:, :, :3]  # 4th channel is transparency... cut it out
+        orig_image = self.transform(orig_image)
+
+        # Concatenate original blurred image onto WF output
+        input_image = torch.cat((input_image, orig_image), 2)
+        assert(input_image.shape[2] == 48)
+
+        # Next get the sharp image (sharp_*)
         path = self.blur_filenames[idx].split('/')[:-1]
         # eliminate path and blur_prefix from fname
         base_name = '_'.join(self.blur_filenames[idx].split('/')[-1].split('_')[2:])

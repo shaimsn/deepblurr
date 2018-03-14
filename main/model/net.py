@@ -69,7 +69,7 @@ class Net(nn.Module):
         :return:
         """
         inp_copy = s
-        s = self.bn1(self.conv_RB_L1(self.relu1(self.bn1(self.conv_RB_L1(s)))))
+        s = self.conv_RB_L1(self.relu1(self.conv_RB_L1(s)))
         s = s + inp_copy  # skip connection
         return s
 

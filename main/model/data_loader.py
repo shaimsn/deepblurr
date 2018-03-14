@@ -153,7 +153,7 @@ def fetch_dataloader(types, data_dir, params):
 
             # use the train_transformer if training data, else use eval_transformer without random flip
             if split == 'train':
-                my_dataset = GOPRODataset(path, train_transformer)
+                # my_dataset = GOPRODataset(path, train_transformer)
                 # pdb.set_trace()
                 dl = DataLoader(GOPRODataset(path, train_transformer), batch_size=params.train_batch_size, shuffle=True,
                                         num_workers=params.num_workers,

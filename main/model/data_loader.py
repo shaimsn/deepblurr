@@ -99,7 +99,9 @@ class GOPRODataset(Dataset):
         # eliminate path and blur_prefix from fname
         base_name = '_'.join(self.blur_filenames[idx].split('/')[-1].split('_')[2:])
         bnum = str(self.blur_filenames[idx].split('/')[-1].split('_')[1])
-        bnum.replace("ws", "b")
+        bnum = bnum.replace("ws", "b")
+        # print(bnum) 
+       
         # This is the actual filename appended to the directory structure
         path.append('orig_' + bnum + '_' + base_name)
         orig_image = Image.open('/'.join(path))  # because one sharp image for multiple training images
@@ -108,8 +110,10 @@ class GOPRODataset(Dataset):
         orig_image = self.transform(orig_image)
 
         # Concatenate original blurred image onto WF output
-        input_image = torch.cat((input_image, orig_image), 2)
-        assert(input_image.shape[2] == 48)
+        #print(input_image.shape) 
+        #print(orig_image.shape)
+        input_image = torch.cat((input_image, orig_image), 0)
+        assert(input_image.shape[0] == 48)
 
         # Next get the sharp image (sharp_*)
         path = self.blur_filenames[idx].split('/')[:-1]

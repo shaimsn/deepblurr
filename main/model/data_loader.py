@@ -98,9 +98,10 @@ class GOPRODataset(Dataset):
         path = self.blur_filenames[idx].split('/')[:-1]
         # eliminate path and blur_prefix from fname
         base_name = '_'.join(self.blur_filenames[idx].split('/')[-1].split('_')[2:])
-        bnum = self.blur_filenames[idx].split('/')[-1].split('_')[1]
+        bnum = str(self.blur_filenames[idx].split('/')[-1].split('_')[1])
+        bnum.replace("ws", "b")
         # This is the actual filename appended to the directory structure
-        path.append('orig_' + str(bnum) + '_' + base_name)
+        path.append('orig_' + bnum + '_' + base_name)
         orig_image = Image.open('/'.join(path))  # because one sharp image for multiple training images
         orig_image = np.array(orig_image)
         orig_image = orig_image[:, :, :3]  # 4th channel is transparency... cut it out

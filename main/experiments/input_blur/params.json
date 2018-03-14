@@ -1,0 +1,13 @@
+{
+    "learning_rate": 5e-4,
+    "train_batch_size": 16,
+    "eval_batch_size": 1,
+    "num_epochs": 20,
+    "dropout_rate":0.80,
+    "num_channels_L1": 64,
+    "save_summary_steps": 4,
+    "num_workers": 4,
+    "num_resblocks":12,
+    "filter_size_L1":5,
+    "save_image_epochs": 2
+}

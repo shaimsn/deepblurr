@@ -158,7 +158,7 @@ class NetD(nn.Module):
 
         Note: the dimensions after each step are provided
         """
-        #
+
         # TODO figure out batch_size??               -> batch_size x 3 x 64 x 64
         s = self.conv_in(s)
         s = self.LR(self.conf_D1)(s)

@@ -47,7 +47,11 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
     modelD.train()
 
     criterion = nn.BCELoss() #added for GAN
-    
+    real_label = 1
+    fake_label = 0
+    label = torch.FloatTensor(params.train_batch_size)
+
+
     # check cuda
     # print(params.cuda)
     # summary for current training loop and a running average object for loss
@@ -62,6 +66,8 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             if params.cuda:
                 # print("CUDA IS WORKING")
                 train_batch, labels_batch = train_batch.cuda(async=True), labels_batch.cuda(async=True)
+                criterion.cuda()
+                label = label.cuda()
             # convert to torch Variables
             train_batch, labels_batch = Variable(train_batch), Variable(labels_batch)
 
@@ -80,23 +86,23 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             # train D on ground truth
             modelD.zero_grad();
             d_real_decision = modelD(labels_batch) #need to process from batch??
-            d_real_error = criterion(d_real_decision, Variable(torch.ones(params.train_batch_size)))
+            d_real_error = criterion(d_real_decision, Variable(label.fill_(real_label)))
             d_real_error.backward() #compute/store but dont change params
 
             # train D on generated images (fake)
             d_fake_data = model(train_batch).detach() #detach to avoid training on these labels
             d_fake_decision = modelD(d_fake_data)
-            d_fake_error = criterion(d_fake_decision, Variable(torch.zeros(params.train_batch_size)))
+            d_fake_error = criterion(d_fake_decision, Variable(label.fill_(fake_label)))
             d_fake_error.backward()
             optimizerD.step() #only optimizes D's parameters
 
             #train G on D's response but do not train D on these labels
             #TODO do I need to use the next batch??
             model.zero_grad()
-            g_fake_data = model(train_batch)
-            g_fake_decision = modelD(g_fake_data)
-            g_error = loss_fn(output_batch, labels_batch) + criterion(g_fake_decision, Variable(torch.ones(params.train_batch_size))) #want to fool so set as true (uses L2 and Adv loss)
-            g_error.backward()
+            output_batch = model(train_batch)
+            g_fake_decision = modelD(output_batch)
+            loss = loss_fn(output_batch, labels_batch) + criterion(g_fake_decision, Variable(label.fill_(real_label))) #want to fool so set as true (uses L2 and Adv loss)
+            loss.backward()
             optimizer.step() #only optimizes G's parameters
 
 

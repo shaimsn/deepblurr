@@ -23,6 +23,9 @@ parser.add_argument('--model_dir', default='experiments/input_blur', help="Direc
 parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
                     training")  # 'best' or 'train'
+parser.add_argument('--restore_fileD', default=None,
+                    help="Optional, name of the file in --model_dir containing weights for discriminator to reload before \
+                    training")
 
 #TODO check change to inputs also need to check how to save/deal with second set of weights!
 def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, params):
@@ -121,7 +124,7 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
 
 
 def train_and_evaluate(model, modelD, train_dataloader, val_dataloader, optimizer, optimizerD, loss_fn, metrics, params, model_dir,
-                       restore_file=None):
+                       restore_file=None, restore_fileD=None):
     """Train the model and evaluate every epoch.
 
     Args:
@@ -140,6 +143,12 @@ def train_and_evaluate(model, modelD, train_dataloader, val_dataloader, optimize
         restore_path = os.path.join(args.model_dir, args.restore_file + '.pth.tar')
         logging.info("Restoring parameters from {}".format(restore_path))
         utils.load_checkpoint(restore_path, model, optimizer)
+
+        #TODO need to do this for Discriminator
+    if restore_fileD is not None:
+        restore_pathD = os.path.join(args.model_dir, args.restore_fileD + '.pth.tar')
+        logging.info("Restoring Discriminator parameters from {}".format(restore_pathD))
+        utils.load_checkpoint(restore_pathD, modelD, optimizerD)
 
     best_val_acc = 0.0
 
@@ -170,8 +179,8 @@ def train_and_evaluate(model, modelD, train_dataloader, val_dataloader, optimize
                                checkpoint=model_dir)
         #TODO do the same for the Discriminator not sure what to do here
         utils.save_checkpoint({'epoch': epoch + 1,
-                               'state_dict': model.state_dict(),
-                               'optim_dict': optimizer.state_dict()},
+                               'state_dictD': modelD.state_dict(),
+                               'optim_dictD': optimizerD.state_dict()},
                               is_best=is_best,
                               checkpoint=model_dir)
 
@@ -231,5 +240,5 @@ if __name__ == '__main__':
 
     # Train the model
     logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
-    train_and_evaluate(model, train_dl, val_dl, optimizer, loss_fn, metrics, params, args.model_dir,
+    train_and_evaluate(model, modelD train_dl, val_dl, optimizer, optimizerD, loss_fn, metrics, params, args.model_dir,
                        args.restore_file)

@@ -6,6 +6,7 @@ import os
 
 import numpy as np
 import torch
+import torch.nn as nn
 import torch.optim as optim
 from torch.autograd import Variable
 from tqdm import tqdm
@@ -19,7 +20,7 @@ from save_images import evaluate_save
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='data/WF_final', help="Directory containing the dataset")
-parser.add_argument('--model_dir', default='experiments/input_blur', help="Directory containing params.json")
+parser.add_argument('--model_dir', default='experiments/testing_GAN', help="Directory containing params.json")
 parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
                     training")  # 'best' or 'train'
@@ -79,13 +80,13 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             # train D on ground truth
             modelD.zero_grad();
             d_real_decision = modelD(labels_batch) #need to process from batch??
-            d_real_error = criterion(d_real_decision, Variable(torch.ones(params.batch_size)))
+            d_real_error = criterion(d_real_decision, Variable(torch.ones(params.train_batch_size)))
             d_real_error.backward() #compute/store but dont change params
 
             # train D on generated images (fake)
             d_fake_data = model(train_batch).detach() #detach to avoid training on these labels
             d_fake_decision = modelD(d_fake_data)
-            d_fake_error = criterion(d_fake_decision, Variable(torch.zeros(params.batch_size)))
+            d_fake_error = criterion(d_fake_decision, Variable(torch.zeros(params.train_batch_size)))
             d_fake_error.backward()
             optimizerD.step() #only optimizes D's parameters
 
@@ -94,7 +95,7 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             model.zero_grad()
             g_fake_data = model(train_batch)
             g_fake_decision = modelD(g_fake_data)
-            g_error = loss_fn(output_batch, labels_batch) + criterion(g_fake_decision, Variable(torch.ones(1))) #want to fool so set as true (uses L2 and Adv loss)
+            g_error = loss_fn(output_batch, labels_batch) + criterion(g_fake_decision, Variable(torch.ones(params.train_batch_size))) #want to fool so set as true (uses L2 and Adv loss)
             g_error.backward()
             optimizer.step() #only optimizes G's parameters
 
@@ -232,7 +233,7 @@ if __name__ == '__main__':
 
     #TODO check these for discriminator
     modelD = net.NetD(params).cuda() if params.cuda else net.NetD(params)
-    optimizerD = optim.Adam(modelD.parameters(), lr = params.learning_rateD) #TODO add learning_rate_D
+    optimizerD = optim.Adam(modelD.parameters(), lr = params.learning_rate_NetD) #TODO add learning_rate_D
 
     # fetch loss function and metrics
     loss_fn = net.loss_fn
@@ -240,5 +241,5 @@ if __name__ == '__main__':
 
     # Train the model
     logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
-    train_and_evaluate(model, modelD train_dl, val_dl, optimizer, optimizerD, loss_fn, metrics, params, args.model_dir,
+    train_and_evaluate(model, modelD, train_dl, val_dl, optimizer, optimizerD, loss_fn, metrics, params, args.model_dir,
                        args.restore_file)

@@ -1,4 +1,14 @@
-"""Defines the neural network, losss function and metrics"""
+"""rning_rate": 5e-4,
+    "train_batch_size": 16,
+    "eval_batch_size": 1,
+    "num_epochs": 20,
+    "dropout_rate":0.80,
+    "num_channels_L1": 64,
+    "save_summary_steps": 4,
+    "num_workers": 4,
+    "num_resblocks":12,
+    "filter_size_L1":5,
+    "save_image_epochs": 2Defines the neural network, losss function and metrics"""
 
 import numpy as np
 import torch
@@ -128,12 +138,12 @@ class NetD(nn.Module):
         # each of the convolution layers below have the arguments (input_channels, output_channels, filter_size,
         # stride, padding). We also include batch normalisation layers that help stabilise training.
         # For more details on how to use these layers, check out the documentation.
-        padding_NetD = int((self.filter_size_L1 - 1) / 2)
+        padding_NetD = int((self.filter_size_NetD - 1) / 2)
 
         self.conv_in = nn.Conv2d(3, 32, self.filter_size_NetD, stride=1, padding=padding_NetD)
 
         self.conv_D1 = nn.Conv2d(32, 32, self.filter_size_NetD, stride=2, padding=padding_NetD)
-        self.LR = nn.LeakyReLu(0.2,true)
+        self.LR = nn.LeakyReLU(negative_slope=0.2,inplace=True)
 
         self.conv_D2 = nn.Conv2d(32, 64, self.filter_size_NetD, stride=1, padding=padding_NetD)
         self.conv_D3 = nn.Conv2d(64, 64, self.filter_size_NetD, stride=2, padding=padding_NetD)
@@ -161,16 +171,16 @@ class NetD(nn.Module):
 
         # TODO figure out batch_size??               -> batch_size x 3 x 64 x 64
         s = self.conv_in(s)
-        s = self.LR(self.conf_D1)(s)
-        s = self.LR(self.conf_D2)(s)
-        s = self.LR(self.conf_D3)(s)
-        s = self.LR(self.conf_D4)(s)
-        s = self.LR(self.conf_D5)(s)
-        s = self.LR(self.conf_D6)(s)
-        s = self.LR(self.conf_D7)(s)
-        s = self.LR(self.conf_D8)(s)
-        s = self.LR(self.conf_D9)(s)
-        D = self.sigmoid_out(self.dense_D10)(s)
+        s = self.LR(self.conv_D1(s))
+        s = self.LR(self.conv_D2(s))
+        s = self.LR(self.conv_D3(s))
+        s = self.LR(self.conv_D4(s))
+        s = self.LR(self.conv_D5(s))
+        s = self.LR(self.conv_D6(s))
+        s = self.LR(self.conv_D7(s))
+        s = self.LR(self.conv_D8(s))
+        s = self.LR(self.conv_D9(s))
+        D = self.sigmoid_out(self.dense_D10(s))
 
         return D
 

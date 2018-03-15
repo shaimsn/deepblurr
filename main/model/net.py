@@ -112,6 +112,67 @@ class Net(nn.Module):
         # return F.log_softmax(s, dim=
         return L1
 
+class NetD(nn.Module):
+    def __init__(self, params):
+        """
+        We define an convolutional network that acts as the discriminator
+
+        Args:
+            params: (Params) contains num_channels
+        """
+        super(NetD, self).__init__()
+        #self.num_channels_L1 = params.num_channels_L1
+        self.filter_size_NetD = params.filter_size_NetD #TODO: add to params.json
+
+
+        # each of the convolution layers below have the arguments (input_channels, output_channels, filter_size,
+        # stride, padding). We also include batch normalisation layers that help stabilise training.
+        # For more details on how to use these layers, check out the documentation.
+        padding_NetD = int((self.filter_size_L1 - 1) / 2)
+
+        self.conv_in = nn.Conv2d(3, 32, self.filter_size_NetD, stride=1, padding=padding_NetD)
+
+        self.conv_D1 = nn.Conv2d(32, 32, self.filter_size_NetD, stride=2, padding=padding_NetD)
+        self.LR = nn.LeakyReLu(0.2,true)
+
+        self.conv_D2 = nn.Conv2d(32, 64, self.filter_size_NetD, stride=1, padding=padding_NetD)
+        self.conv_D3 = nn.Conv2d(64, 64, self.filter_size_NetD, stride=2, padding=padding_NetD)
+        self.conv_D4 = nn.Conv2d(64, 128, self.filter_size_NetD, stride=1, padding=padding_NetD)
+        self.conv_D5 = nn.Conv2d(128, 128, self.filter_size_NetD, stride=4, padding=padding_NetD)
+        self.conv_D6 = nn.Conv2d(128, 256, self.filter_size_NetD, stride=1, padding=padding_NetD)
+        self.conv_D7 = nn.Conv2d(256, 256, self.filter_size_NetD, stride=4, padding=padding_NetD)
+        self.conv_D8 = nn.Conv2d(256, 512, self.filter_size_NetD, stride=1, padding=padding_NetD)
+        self.conv_D9 = nn.Conv2d(512, 512, 4, stride=4, padding=0)
+        self.dense_D10 = nn.Conv2d(512, 1, 1, stride =1, padding=0)
+        self.sigmoid_out = nn.Sigmoid()
+
+    def forward(self, s):
+        """
+        This function defines how we use the components of our Discriminator network to operate on an input batch.
+
+        Args:
+            s: (Variable) contains a batch of images, of dimension batch_size x 3 x 64 x 64 .
+
+        Returns:
+            out: (Variable) dimension batch_size x 3 x 64 x 64 with the deblurred versions of each image.
+
+        Note: the dimensions after each step are provided
+        """
+        #
+        # TODO figure out batch_size??               -> batch_size x 3 x 64 x 64
+        s = self.conv_in(s)
+        s = self.LR(self.conf_D1)(s)
+        s = self.LR(self.conf_D2)(s)
+        s = self.LR(self.conf_D3)(s)
+        s = self.LR(self.conf_D4)(s)
+        s = self.LR(self.conf_D5)(s)
+        s = self.LR(self.conf_D6)(s)
+        s = self.LR(self.conf_D7)(s)
+        s = self.LR(self.conf_D8)(s)
+        s = self.LR(self.conf_D9)(s)
+        D = self.sigmoid_out(self.dense_D10)(s)
+
+        return D
 
 def loss_fn(model_outputs, true_outputs):
     """
@@ -136,10 +197,11 @@ def loss_fn(model_outputs, true_outputs):
     # return -torch.sum(outputs[range(num_examples), labels])/num_examples
     # TODO: is this correct?
     norm_factor = 1./(num_examples*channels*width*height)
-    return norm_factor * torch.sum((model_outputs-true_outputs)**2)
+    Loss_L2 = norm_factor * torch.sum((model_outputs-true_outputs)**2)
+
+    return Loss_L2
     # return norm_factor*torch.sum([torch.norm(model_outputs[i]-true_outputs[i] for i in num_examples)])
     # return norm_factor*torch.sum(torch.norm(model_outputs-true_outputs))
-
 
 def psnr(outputs, labels):
     """

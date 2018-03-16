@@ -49,7 +49,7 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
     criterion = nn.BCELoss() #added for GAN
     real_label = 1
     fake_label = 0
-    label = torch.FloatTensor(params.train_batch_size)
+
 
 
     # check cuda
@@ -62,6 +62,9 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
     with tqdm(total=len(dataloader)) as t:
         # pdb.set_trace()
         for i, (train_batch, labels_batch, _) in enumerate(dataloader):
+
+            label = torch.FloatTensor(train_batch.size[0])
+
             # move to GPU if available
             if params.cuda:
                 # print("CUDA IS WORKING")
@@ -70,6 +73,9 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
                 label = label.cuda()
             # convert to torch Variables
             train_batch, labels_batch = Variable(train_batch), Variable(labels_batch)
+
+
+
 
             # compute model output and loss
             # output_batch = model(train_batch)

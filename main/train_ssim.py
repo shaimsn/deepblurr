@@ -22,7 +22,7 @@ import pytorch_ssim
 parser = argparse.ArgumentParser()
 parser.add_argument('--ssim', default='true', help='Whether or not to use ssim loss')
 parser.add_argument('--data_dir', default='data/WF_final', help="Directory containing the dataset")
-parser.add_argument('--model_dir', default='experiments/input_blur', help="Directory containing params.json")
+parser.add_argument('--model_dir', default='experiments/ssim_loss', help="Directory containing params.json")
 parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
                     training")  # 'best' or 'last'
@@ -49,8 +49,10 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params):
     # summary for current training loop and a running average object for loss
     summ = []
     loss_avg = utils.RunningAverage()
-
-    ssim_loss = pytorch_ssim.SSIM()
+    
+    if args.ssim == 'true':
+        logging.info('Using SSIM loss')
+        ssim_loss = pytorch_ssim.SSIM()
 
     # Use tqdm for progress bar
     with tqdm(total=len(dataloader)) as t:
@@ -67,7 +69,7 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params):
             output_batch = model(train_batch)
 
 
-            if args.['ssim'] == 'true':
+            if args.ssim == 'true':
                 loss = -ssim_loss(output_batch, labels_batch)
             else:
                 loss = loss_fn(output_batch, labels_batch)

@@ -88,7 +88,7 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             # This should be a 1
             d_real_decision = modelD(labels_batch)
             # Loss of real decision
-            d_real_error = criterion(d_real_decision, Variable(label.fill_(real_label)))
+            d_real_error = criterion(torch.squeeze(d_real_decision), Variable(label.fill_(real_label)))
             d_real_error.backward()  # compute/store but dont change params
 
             # train D on generated images (fake)
@@ -96,7 +96,7 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             # This should be 0
             d_fake_decision = modelD(d_fake_data)
             # This is loss function
-            d_fake_error = criterion(d_fake_decision, Variable(label.fill_(fake_label)))
+            d_fake_error = criterion(torch.squeeze(d_fake_decision), Variable(label.fill_(fake_label)))
             d_fake_error.backward()
             optimizerD.step()  # only optimizes D's parameters
 
@@ -105,7 +105,7 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             model.zero_grad()
             output_batch = model(train_batch)
             g_fake_decision = modelD(output_batch)
-            loss = loss_fn(output_batch, labels_batch) + criterion(g_fake_decision, Variable(label.fill_(real_label))) #want to fool so set as true (uses L2 and Adv loss)
+            loss = loss_fn(output_batch, labels_batch) + criterion(torch.squeeze(g_fake_decision), Variable(label.fill_(real_label))) #want to fool so set as true (uses L2 and Adv loss)
             loss.backward()
             optimizer.step()  # only optimizes G's parameters
 

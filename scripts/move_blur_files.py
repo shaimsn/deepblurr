@@ -4,18 +4,18 @@ import shutil
 
 
 cur_fnames = os.listdir('./')
-base_dir = '../../WF_final/'
+base_dir = '../WF_final/'
 train_dir = 'train_pics/'
 val_dir = 'val_pics/'
 test_dir = 'test_pics/'
-final_dir = '../png_final'
+final_dir = '../png_final/'
 
 
 def test_which_set(base, test_dir):
     fnames = os.listdir(test_dir)
     for f in fnames:
         if base in f:
-        return True
+            return True
     return False
 
 

@@ -69,7 +69,7 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
         # pdb.set_trace()
         for i, (train_batch, labels_batch, _) in enumerate(dataloader):
 
-            label = torch.FloatTensor(train_batch.size[0])
+            label = torch.FloatTensor(train_batch.size()[0])
 
             # move to GPU if available
             if params.cuda:
@@ -120,13 +120,13 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
 
             adv_loss = criterion(torch.squeeze(g_fake_decision), Variable(label.fill_(real_label)))
 
-            if args.['ssim'] == 'true':
+            if args.ssim == 'true':
                 # want to fool so set as true (uses L2 and Adv loss)
 
                 reg_loss = -ssim_loss(output_batch, labels_batch)
 
             else:
-                reg_ loss = loss_fn(output_batch, labels_batch)
+                reg_loss = loss_fn(output_batch, labels_batch)
 
             loss = reg_loss + adv_loss
 
@@ -149,7 +149,7 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             # update the average loss
             loss_avg.update(loss.data[0])
             reg_loss_avg.update(reg_loss.data[0])
-            adv_loss_avg.update(reg_loss.data[0])
+            adv_loss_avg.update(adv_loss.data[0])
 
             t.set_postfix(loss='reg: {:05.7f} + adv: {:05.7f}'.format(reg_loss_avg(), adv_loss_avg()))
             t.update()

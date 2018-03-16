@@ -16,8 +16,10 @@ import model.net as net
 import model.data_loader as data_loader
 from evaluate import evaluate
 from save_images import evaluate_save
+import pytorch_ssim
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--ssim', default='true', help='Whether or not to use ssim loss')
 parser.add_argument('--data_dir', default='data/WF_final', help="Directory containing the dataset")
 parser.add_argument('--model_dir', default='experiments/input_blur', help="Directory containing params.json")
 parser.add_argument('--restore_file', default=None,
@@ -49,6 +51,8 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params):
     summ = []
     loss_avg = utils.RunningAverage()
 
+    ssim_loss = pytorch_ssim.SSIM()
+
     # Use tqdm for progress bar
     with tqdm(total=len(dataloader)) as t:
         # pdb.set_trace()
@@ -62,7 +66,11 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params):
 
             # compute model output and loss
             output_batch = model(train_batch)
-            loss = loss_fn(output_batch, labels_batch)
+
+            if args.['ssim'] == 'true':
+                loss = -ssim_loss(output_batch, labels_batch)
+            else:
+                loss = loss_fn(output_batch, labels_batch)
 
             # clear previous gradients, compute gradients of all variables wrt loss
             optimizer.zero_grad()

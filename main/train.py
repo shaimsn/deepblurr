@@ -11,6 +11,7 @@ import torch.optim as optim
 from torch.autograd import Variable
 from tqdm import tqdm
 import pdb
+import pytorch_ssim
 
 import utils
 import model.net as net
@@ -19,6 +20,7 @@ from evaluate import evaluate
 from save_images import evaluate_save
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--ssim', default='true', help='Whether or not to use ssim loss')
 parser.add_argument('--data_dir', default='data/WF_final', help="Directory containing the dataset")
 parser.add_argument('--model_dir', default='experiments/testing_GAN', help="Directory containing params.json")
 parser.add_argument('--restore_file', default=None,
@@ -57,6 +59,10 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
     # summary for current training loop and a running average object for loss
     summ = []
     loss_avg = utils.RunningAverage()
+    reg_loss_avg = utils.RunningAverage()
+    adv_loss_avg = utils.RunningAverage()
+
+    ssim_loss = pytorch_ssim.SSIM()
 
     # Use tqdm for progress bar
     with tqdm(total=len(dataloader)) as t:
@@ -111,7 +117,20 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             model.zero_grad()
             output_batch = model(train_batch)
             g_fake_decision = modelD(output_batch)
-            loss = loss_fn(output_batch, labels_batch) + criterion(torch.squeeze(g_fake_decision), Variable(label.fill_(real_label))) #want to fool so set as true (uses L2 and Adv loss)
+
+            adv_loss = criterion(torch.squeeze(g_fake_decision), Variable(label.fill_(real_label)))
+
+            if args.['ssim'] == 'true':
+                # want to fool so set as true (uses L2 and Adv loss)
+
+                reg_loss = -ssim_loss(output_batch, labels_batch)
+
+            else:
+                reg_ loss = loss_fn(output_batch, labels_batch)
+
+            loss = reg_loss + adv_loss
+
+            # loss = loss_fn(output_batch, labels_batch) + criterion(torch.squeeze(g_fake_decision), Variable(label.fill_(real_label))) #want to fool so set as true (uses L2 and Adv loss)
             loss.backward()
             optimizer.step()  # only optimizes G's parameters
 
@@ -129,8 +148,10 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
 
             # update the average loss
             loss_avg.update(loss.data[0])
+            reg_loss_avg.update(reg_loss.data[0])
+            adv_loss_avg.update(reg_loss.data[0])
 
-            t.set_postfix(loss='{:05.7f}'.format(loss_avg()))
+            t.set_postfix(loss='reg: {:05.7f} + adv: {:05.7f}'.format(reg_loss_avg(), adv_loss_avg()))
             t.update()
 
     # compute mean of all metrics in summary

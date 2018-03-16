@@ -122,6 +122,7 @@ class Net(nn.Module):
         # return F.log_softmax(s, dim=
         return L1
 
+
 class NetD(nn.Module):
     def __init__(self, params):
         """
@@ -132,7 +133,7 @@ class NetD(nn.Module):
         """
         super(NetD, self).__init__()
         #self.num_channels_L1 = params.num_channels_L1
-        self.filter_size_NetD = params.filter_size_NetD #TODO: add to params.json
+        self.filter_size_NetD = params.filter_size_NetD
 
 
         # each of the convolution layers below have the arguments (input_channels, output_channels, filter_size,
@@ -169,7 +170,6 @@ class NetD(nn.Module):
         Note: the dimensions after each step are provided
         """
 
-        # TODO figure out batch_size??               -> batch_size x 3 x 64 x 64
         s = self.conv_in(s)
         s = self.LR(self.conv_D1(s))
         s = self.LR(self.conv_D2(s))

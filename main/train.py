@@ -28,7 +28,7 @@ parser.add_argument('--restore_fileD', default=None,
                     help="Optional, name of the file in --model_dir containing weights for discriminator to reload before \
                     training")
 
-#TODO check change to inputs also need to check how to save/deal with second set of weights!
+# TODO check change to inputs also need to check how to save/deal with second set of weights!
 def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, params):
     """Train the model on `num_steps` batches
 
@@ -72,39 +72,42 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             train_batch, labels_batch = Variable(train_batch), Variable(labels_batch)
 
             # compute model output and loss
-            #output_batch = model(train_batch)
-            #loss = loss_fn(output_batch, labels_batch)
+            # output_batch = model(train_batch)
+            # loss = loss_fn(output_batch, labels_batch)
 
             # clear previous gradients, compute gradients of all variables wrt loss
-            #optimizer.zero_grad()
-            #loss.backward()
+            # optimizer.zero_grad()
+            # loss.backward()
 
             # performs updates using calculated gradients
-            #optimizer.step()
+            # optimizer.step()
 
             # TODO evaluate: this is the new training method LOOK AT BATCH_SIZE
             # train D on ground truth
-            modelD.zero_grad();
-            d_real_decision = modelD(labels_batch) #need to process from batch??
+            modelD.zero_grad()
+            # This should be a 1
+            d_real_decision = modelD(labels_batch)
+            # Loss of real decision
             d_real_error = criterion(d_real_decision, Variable(label.fill_(real_label)))
-            d_real_error.backward() #compute/store but dont change params
+            d_real_error.backward()  # compute/store but dont change params
 
             # train D on generated images (fake)
-            d_fake_data = model(train_batch).detach() #detach to avoid training on these labels
+            d_fake_data = model(train_batch).detach()  # detach to avoid training on these labels
+            # This should be 0
             d_fake_decision = modelD(d_fake_data)
+            # This is loss function
             d_fake_error = criterion(d_fake_decision, Variable(label.fill_(fake_label)))
             d_fake_error.backward()
-            optimizerD.step() #only optimizes D's parameters
+            optimizerD.step()  # only optimizes D's parameters
 
-            #train G on D's response but do not train D on these labels
-            #TODO do I need to use the next batch??
+            # train G on D's response but do not train D on these labels
+            # TODO do I need to use the next batch??
             model.zero_grad()
             output_batch = model(train_batch)
             g_fake_decision = modelD(output_batch)
             loss = loss_fn(output_batch, labels_batch) + criterion(g_fake_decision, Variable(label.fill_(real_label))) #want to fool so set as true (uses L2 and Adv loss)
             loss.backward()
-            optimizer.step() #only optimizes G's parameters
-
+            optimizer.step()  # only optimizes G's parameters
 
             # Evaluate summaries only once in a while
             if i % params.save_summary_steps == 0:
@@ -175,7 +178,7 @@ def train_and_evaluate(model, modelD, train_dataloader, val_dataloader, optimize
             evaluate_save(model, loss_fn, val_dataloader, metrics, params, iter_num=epoch, model_name=model_name)
 
         val_acc = val_metrics['psnr']
-        is_best = val_acc>=best_val_acc
+        is_best = val_acc >= best_val_acc
         
 #        is_best=True
         # Save weights
@@ -186,10 +189,10 @@ def train_and_evaluate(model, modelD, train_dataloader, val_dataloader, optimize
                                checkpoint=model_dir)
         #TODO do the same for the Discriminator not sure what to do here
         utils.save_checkpoint({'epoch': epoch + 1,
-                               'state_dictD': modelD.state_dict(),
-                               'optim_dictD': optimizerD.state_dict()},
+                               'state_dict': modelD.state_dict(),
+                               'optim_dict': optimizerD.state_dict()},
                               is_best=is_best,
-                              checkpoint=model_dir)
+                              checkpoint=model_dir, gan=True)
 
         # If best_eval, best_save_path
         if is_best:
@@ -239,7 +242,7 @@ if __name__ == '__main__':
 
     #TODO check these for discriminator
     modelD = net.NetD(params).cuda() if params.cuda else net.NetD(params)
-    optimizerD = optim.Adam(modelD.parameters(), lr = params.learning_rate_NetD) #TODO add learning_rate_D
+    optimizerD = optim.Adam(modelD.parameters(), lr=params.learning_rate_NetD)
 
     # fetch loss function and metrics
     loss_fn = net.loss_fn

@@ -102,7 +102,7 @@ def save_dict_to_json(d, json_path):
         json.dump(d, f, indent=4)
 
 
-def save_checkpoint(state, is_best, checkpoint):
+def save_checkpoint(state, is_best, checkpoint, gan=False):
     """Saves model and training parameters at checkpoint + 'last.pth.tar'. If is_best==True, also saves
     checkpoint + 'best.pth.tar'
 
@@ -111,7 +111,10 @@ def save_checkpoint(state, is_best, checkpoint):
         is_best: (bool) True if it is the best model seen till now
         checkpoint: (string) folder where parameters are to be saved
     """
-    filepath = os.path.join(checkpoint, 'last.pth.tar')
+    if gan:
+        filepath = os.path.join(checkpoint, 'last_gan.pth.tar')
+    else:
+        filepath = os.path.join(checkpoint, 'last.pth.tar')
     if not os.path.exists(checkpoint):
         print("Checkpoint Directory does not exist! Making directory {}".format(checkpoint))
         os.mkdir(checkpoint)
@@ -119,10 +122,13 @@ def save_checkpoint(state, is_best, checkpoint):
         print("Checkpoint Directory exists! ")
     torch.save(state, filepath)
     if is_best:
-        shutil.copyfile(filepath, os.path.join(checkpoint, 'best.pth.tar'))
+        if gan:
+            shutil.copyfile(filepath, os.path.join(checkpoint, 'best_gan.pth.tar'))
+        else:
+            shutil.copyfile(filepath, os.path.join(checkpoint, 'best.pth.tar'))
 
 
-def load_checkpoint(checkpoint, model, optimizer=None):
+def load_checkpoint(checkpoint, model, optimizer=None, gan=False):
     """Loads model parameters (state_dict) from file_path. If optimizer is provided, loads state_dict of
     optimizer assuming it is present in checkpoint.
 

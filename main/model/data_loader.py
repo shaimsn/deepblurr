@@ -105,7 +105,7 @@ class GOPRODataset(Dataset):
         # This is the actual filename appended to the directory structure
         path.append('orig_' + bnum + '_' + base_name)
         path = '/'.join(path)
-        path.replace('.png', '.JPEG')
+        path = path.replace('.png', '.JPEG')
         orig_image = Image.open(path)  # because one sharp image for multiple training images
         orig_image = np.array(orig_image)
         orig_image = orig_image[:, :, :3]  # 4th channel is transparency... cut it out
@@ -124,7 +124,7 @@ class GOPRODataset(Dataset):
         # This is the actual filename appended to the directory structure
         path.append('sharp_' + base_name)
         path = '/'.join(path)
-        path.replace('.png', '.JPEG')
+        path =  path.replace('.png', '.JPEG')
         label_image = Image.open(path)  #because one sharp image for multiple training images
         label_image = np.array(label_image)
         label_image = label_image[:, :, :3] # 4th channel is transparency... cut it out

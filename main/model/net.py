@@ -144,7 +144,7 @@ class NetD(nn.Module):
         self.conv_in = nn.Conv2d(3, 32, self.filter_size_NetD, stride=1, padding=padding_NetD)
 
         self.conv_D1 = nn.Conv2d(32, 32, self.filter_size_NetD, stride=2, padding=padding_NetD)
-        self.B1 = nn.BatchNorm2d(64)
+        self.B1 = nn.BatchNorm2d(32)
         self.LR = nn.LeakyReLU(negative_slope=0.2,inplace=True)
 
         self.conv_D2 = nn.Conv2d(32, 64, self.filter_size_NetD, stride=1, padding=padding_NetD)

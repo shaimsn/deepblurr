@@ -21,7 +21,7 @@ from save_images import evaluate_save
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--ssim', default='true', help='Whether or not to use ssim loss')
-parser.add_argument('--data_dir', default='data/WF_final', help="Directory containing the dataset")
+parser.add_argument('--data_dir', default='data/png_final', help="Directory containing the dataset")
 parser.add_argument('--model_dir', default='experiments/testing_GAN', help="Directory containing params.json")
 parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
@@ -61,6 +61,7 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
     loss_avg = utils.RunningAverage()
     reg_loss_avg = utils.RunningAverage()
     adv_loss_avg = utils.RunningAverage()
+    dis_loss_avg = utils.RunningAverage()
 
     ssim_loss = pytorch_ssim.SSIM()
 
@@ -111,6 +112,7 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             d_fake_error = criterion(torch.squeeze(d_fake_decision), Variable(label.fill_(fake_label)))
             d_fake_error.backward()
             optimizerD.step()  # only optimizes D's parameters
+            dis_loss = d_fake_error+d_real_error
 
             # train G on D's response but do not train D on these labels
             # TODO do I need to use the next batch??
@@ -150,8 +152,9 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             loss_avg.update(loss.data[0])
             reg_loss_avg.update(reg_loss.data[0])
             adv_loss_avg.update(adv_loss.data[0])
+            dis_loss_avg.update(dis_loss.data[0])
 
-            t.set_postfix(loss='reg: {:05.7f} + adv: {:05.7f}'.format(reg_loss_avg(), adv_loss_avg()))
+            t.set_postfix(loss= 'reg: {:05.7f}  + gen: {:05.7f} + dis: {:05.7f}'.format(reg_loss_avg(), adv_loss_avg(), dis_loss_avg() ))
             t.update()
 
     # compute mean of all metrics in summary
@@ -269,7 +272,7 @@ if __name__ == '__main__':
 
     #TODO check these for discriminator
     modelD = net.NetD(params).cuda() if params.cuda else net.NetD(params)
-    optimizerD = optim.Adam(modelD.parameters(), lr=params.learning_rate_NetD)
+    optimizerD = optim.Adam(modelD.parameters(), lr=params.learning_rate_NetD, betas = (0.5, 0.999))
 
     # fetch loss function and metrics
     loss_fn = net.loss_fn

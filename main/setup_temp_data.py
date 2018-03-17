@@ -1,9 +1,9 @@
 import os
 import random
 
-base_dir = 'data/WF_final/'
+base_dir = 'data/png_final/'
 paths = ['train_pics/', 'val_pics/', 'test_pics/']
-percentage = .90
+percentage = .95
 for folder in paths:
     fnames = os.listdir(base_dir+folder)
     # print(fnames)

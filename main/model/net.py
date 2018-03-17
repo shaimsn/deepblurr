@@ -144,16 +144,33 @@ class NetD(nn.Module):
         self.conv_in = nn.Conv2d(3, 32, self.filter_size_NetD, stride=1, padding=padding_NetD)
 
         self.conv_D1 = nn.Conv2d(32, 32, self.filter_size_NetD, stride=2, padding=padding_NetD)
+        self.B1 = nn.BatchNorm2d(64)
         self.LR = nn.LeakyReLU(negative_slope=0.2,inplace=True)
 
         self.conv_D2 = nn.Conv2d(32, 64, self.filter_size_NetD, stride=1, padding=padding_NetD)
+        self.B2 = nn.BatchNorm2d(64)
+
         self.conv_D3 = nn.Conv2d(64, 64, self.filter_size_NetD, stride=2, padding=padding_NetD)
+        self.B3 = nn.BatchNorm2d(64)
+
         self.conv_D4 = nn.Conv2d(64, 128, self.filter_size_NetD, stride=1, padding=padding_NetD)
+        self.B4 = nn.BatchNorm2d(128)
+
         self.conv_D5 = nn.Conv2d(128, 128, self.filter_size_NetD, stride=4, padding=padding_NetD)
+        self.B5 = nn.BatchNorm2d(128)
+
         self.conv_D6 = nn.Conv2d(128, 256, self.filter_size_NetD, stride=1, padding=padding_NetD)
+        self.B6 = nn.BatchNorm2d(256)
+
         self.conv_D7 = nn.Conv2d(256, 256, self.filter_size_NetD, stride=4, padding=padding_NetD)
+        self.B7 = nn.BatchNorm2d(256)
+
         self.conv_D8 = nn.Conv2d(256, 512, self.filter_size_NetD, stride=1, padding=padding_NetD)
+        self.B8 = nn.BatchNorm2d(512)
+
         self.conv_D9 = nn.Conv2d(512, 512, 4, stride=4, padding=0)
+        self.B9 = nn.BatchNorm2d(512)
+
         self.dense_D10 = nn.Conv2d(512, 1, 1, stride =1, padding=0)
         self.sigmoid_out = nn.Sigmoid()
 
@@ -171,15 +188,15 @@ class NetD(nn.Module):
         """
 
         s = self.conv_in(s)
-        s = self.LR(self.conv_D1(s))
-        s = self.LR(self.conv_D2(s))
-        s = self.LR(self.conv_D3(s))
-        s = self.LR(self.conv_D4(s))
-        s = self.LR(self.conv_D5(s))
-        s = self.LR(self.conv_D6(s))
-        s = self.LR(self.conv_D7(s))
-        s = self.LR(self.conv_D8(s))
-        s = self.LR(self.conv_D9(s))
+        s = self.LR(self.B1(self.conv_D1(s)))
+        s = self.LR(self.B2(self.conv_D2(s)))
+        s = self.LR(self.B3(self.conv_D3(s)))
+        s = self.LR(self.B4(self.conv_D4(s)))
+        s = self.LR(self.B5(self.conv_D5(s)))
+        s = self.LR(self.B6(self.conv_D6(s)))
+        s = self.LR(self.B7(self.conv_D7(s)))
+        s = self.LR(self.B8(self.conv_D8(s)))
+        s = self.LR(self.B9(self.conv_D9(s)))
         D = self.sigmoid_out(self.dense_D10(s))
 
         return D

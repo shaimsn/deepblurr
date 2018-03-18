@@ -130,7 +130,7 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             else:
                 reg_loss = loss_fn(output_batch, labels_batch)
 
-            loss = reg_loss + adv_loss
+            loss = reg_loss + params.adv_loss_coeff*adv_loss
 
             # loss = loss_fn(output_batch, labels_batch) + criterion(torch.squeeze(g_fake_decision), Variable(label.fill_(real_label))) #want to fool so set as true (uses L2 and Adv loss)
             loss.backward()

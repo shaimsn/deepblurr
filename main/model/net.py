@@ -250,7 +250,7 @@ def psnr(outputs, labels):
         mse = np.mean(np.square(outputs[batch] - labels[batch]))
         true_min, true_max = np.min(outputs[batch]), np.max(outputs[batch])
         data_range = true_max - true_min
-        psnrs[batch] = 10 * np.log10((data_range ** 2) / mse)
+        psnrs[batch] = 10 * np.log10((data_range ** 2) / (mse+0.001))
     return np.mean(psnrs)
 
 

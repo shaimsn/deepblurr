@@ -164,7 +164,8 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
                                                                                      dis_loss_avg()))
             else:
                 dis_loss_avg.update(dis_loss.data[0])
-                t.set_postfix(loss='discriminator: {:05.7f}'.format(dis_loss_avg()))
+                t.set_postfix(dis_loss='{:05.7f} => real:{}, fake: {} '.format(dis_loss_avg(), d_real_decision,
+                                                                               d_fake_decision))
 
             t.update()
 

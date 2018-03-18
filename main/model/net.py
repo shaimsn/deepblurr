@@ -201,6 +201,7 @@ class NetD(nn.Module):
 
         return D
 
+
 def loss_fn(model_outputs, true_outputs):
     """
     Compute the cross entropy loss given outputs and labels.
@@ -230,6 +231,7 @@ def loss_fn(model_outputs, true_outputs):
     # return norm_factor*torch.sum([torch.norm(model_outputs[i]-true_outputs[i] for i in num_examples)])
     # return norm_factor*torch.sum(torch.norm(model_outputs-true_outputs))
 
+
 def psnr(outputs, labels):
     """
     Compute the accuracy, given the outputs and labels for all images.
@@ -250,7 +252,7 @@ def psnr(outputs, labels):
         mse = np.mean(np.square(outputs[batch] - labels[batch]))
         true_min, true_max = np.min(outputs[batch]), np.max(outputs[batch])
         data_range = true_max - true_min
-        psnrs[batch] = 10 * np.log10((data_range ** 2) / (mse+0.001))
+        psnrs[batch] = 10 * np.log10((data_range ** 2) / (mse+0.0001))
     return np.mean(psnrs)
 
 

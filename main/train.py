@@ -22,7 +22,7 @@ from save_images import evaluate_save
 parser = argparse.ArgumentParser()
 parser.add_argument('--ssim', default='true', help='Whether or not to use ssim loss')
 parser.add_argument('--data_dir', default='data/png_final', help="Directory containing the dataset")
-parser.add_argument('--model_dir', default='experiments/testing_GAN', help="Directory containing params.json")
+parser.add_argument('--model_dir', default='experiments/discriminator', help="Directory containing params.json")
 parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
                     training")  # 'best' or 'train'
@@ -81,9 +81,6 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             # convert to torch Variables
             train_batch, labels_batch = Variable(train_batch), Variable(labels_batch)
 
-
-
-
             # compute model output and loss
             # output_batch = model(train_batch)
             # loss = loss_fn(output_batch, labels_batch)
@@ -100,6 +97,8 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             modelD.zero_grad()
             # This should be a 1
             d_real_decision = modelD(labels_batch)
+            # numerical precision sometimes make these greater than 1 or less than 0 which causes cross-entropy to fail
+            d_real_decision = torch.clamp(d_real_decision, min=0.0, max=1.0)
             # Loss of real decision
             d_real_error = criterion(torch.squeeze(d_real_decision), Variable(label.fill_(real_label)))
             d_real_error.backward()  # compute/store but dont change params
@@ -108,6 +107,8 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             d_fake_data = model(train_batch).detach()  # detach to avoid training on these labels
             # This should be 0
             d_fake_decision = modelD(d_fake_data)
+            # numerical precision sometimes make these greater than 1 or less than 0 which causes cross-entropy to fail
+            d_fake_decision = torch.clamp(d_fake_decision, min=0.0, max=1.0)
             # This is loss function
             d_fake_error = criterion(torch.squeeze(d_fake_decision), Variable(label.fill_(fake_label)))
             d_fake_error.backward()
@@ -120,21 +121,31 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             output_batch = model(train_batch)
             g_fake_decision = modelD(output_batch)
 
-            adv_loss = criterion(torch.squeeze(g_fake_decision), Variable(label.fill_(real_label)))
+            if params.train_generator == 'true':
+                adv_loss = criterion(torch.squeeze(g_fake_decision), Variable(label.fill_(real_label)))
 
-            if args.ssim == 'true':
+                if args.ssim == 'true':
+                    # want to fool so set as true (uses L2 and Adv loss)
+
+                    reg_loss = -ssim_loss(output_batch, labels_batch)
+
+                else:
+                    reg_loss = loss_fn(output_batch, labels_batch)
+
+                loss = reg_loss + params.adv_loss_coeff*adv_loss
+
                 # want to fool so set as true (uses L2 and Adv loss)
+                # loss = loss_fn(output_batch, labels_batch) + criterion(torch.squeeze(g_fake_decision),
+                #                                                        Variable(label.fill_(real_label)))
+                loss.backward()
+                optimizer.step()  # only optimizes G's parameters
 
-                reg_loss = -ssim_loss(output_batch, labels_batch)
-
+            # Otherwise we are just training the discriminator
             else:
-                reg_loss = loss_fn(output_batch, labels_batch)
-
-            loss = reg_loss + params.adv_loss_coeff*adv_loss
-
-            # loss = loss_fn(output_batch, labels_batch) + criterion(torch.squeeze(g_fake_decision), Variable(label.fill_(real_label))) #want to fool so set as true (uses L2 and Adv loss)
-            loss.backward()
-            optimizer.step()  # only optimizes G's parameters
+                # have to set these to avoid error on print statements
+                adv_loss = 0
+                reg_loss = 0
+                loss = 0
 
             # Evaluate summaries only once in a while
             if i % params.save_summary_steps == 0:
@@ -154,7 +165,8 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             adv_loss_avg.update(adv_loss.data[0])
             dis_loss_avg.update(dis_loss.data[0])
 
-            t.set_postfix(loss= 'reg: {:05.7f}  + gen: {:05.7f} + dis: {:05.7f}'.format(reg_loss_avg(), adv_loss_avg(), dis_loss_avg() ))
+            t.set_postfix(loss='reg: {:05.7f}  + gen: {:05.7f} + dis: {:05.7f}'.format(reg_loss_avg(), adv_loss_avg(),
+                                                                                       dis_loss_avg() ))
             t.update()
 
     # compute mean of all metrics in summary

@@ -141,34 +141,34 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
                 optimizer.step()  # only optimizes G's parameters
 
             # Otherwise we are just training the discriminator
+
+            if params.train_generator == 'true':
+                # Evaluate summaries only once in a while
+                if i % params.save_summary_steps == 0:
+                    # extract data from torch Variable, move to cpu, convert to numpy arrays
+                    output_batch = output_batch.data.cpu().numpy()
+                    labels_batch = labels_batch.data.cpu().numpy()
+
+                    # compute all metrics on this batch
+                    summary_batch = {metric:metrics[metric](output_batch, labels_batch)
+                                     for metric in metrics}
+                    summary_batch['loss'] = loss.data[0]
+                    summ.append(summary_batch)
+
+                    # update the average loss
+                    loss_avg.update(loss.data[0])
+                    reg_loss_avg.update(reg_loss.data[0])
+                    adv_loss_avg.update(adv_loss.data[0])
+                    t.set_postfix(
+                        loss='reg: {:05.7f}  + gen: {:05.7f} + dis: {:05.7f}'.format(reg_loss_avg(), adv_loss_avg(),
+                                                                                     dis_loss_avg()))
             else:
-                # have to set these to avoid error on print statements
-                adv_loss = 0
-                reg_loss = 0
-                loss = 0
+                dis_loss_avg.update(dis_loss.data[0])
+                t.set_postfix(loss='discriminator: {:05.7f}'.format(dis_loss_avg()))
 
-            # Evaluate summaries only once in a while
-            if i % params.save_summary_steps == 0:
-                # extract data from torch Variable, move to cpu, convert to numpy arrays
-                output_batch = output_batch.data.cpu().numpy()
-                labels_batch = labels_batch.data.cpu().numpy()
-
-                # compute all metrics on this batch
-                summary_batch = {metric:metrics[metric](output_batch, labels_batch)
-                                 for metric in metrics}
-                summary_batch['loss'] = loss.data[0]
-                summ.append(summary_batch)
-
-            # update the average loss
-            loss_avg.update(loss.data[0])
-            reg_loss_avg.update(reg_loss.data[0])
-            adv_loss_avg.update(adv_loss.data[0])
-            dis_loss_avg.update(dis_loss.data[0])
-
-            t.set_postfix(loss='reg: {:05.7f}  + gen: {:05.7f} + dis: {:05.7f}'.format(reg_loss_avg(), adv_loss_avg(),
-                                                                                       dis_loss_avg() ))
             t.update()
 
+    # if params.train_generator == 'true':
     # compute mean of all metrics in summary
     metrics_mean = {metric:np.mean([x[metric] for x in summ]) for metric in summ[0]}
     metrics_string = " ; ".join("{}: {:05.7f}".format(k, v) for k, v in metrics_mean.items())

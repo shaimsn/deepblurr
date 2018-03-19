@@ -1,4 +1,4 @@
-"""rning_rate": 5e-4,
+"""learning_rate": 5e-4,
     "train_batch_size": 16,
     "eval_batch_size": 1,
     "num_epochs": 20,
@@ -140,7 +140,7 @@ class NetD(nn.Module):
         # stride, padding). We also include batch normalisation layers that help stabilise training.
         # For more details on how to use these layers, check out the documentation.
         padding_NetD = int((self.filter_size_NetD - 1) / 2)
-
+        self.drops = nn.Dropout(p=0.8)
         self.conv_in = nn.Conv2d(3, 32, self.filter_size_NetD, stride=1, padding=padding_NetD)
 
         self.conv_D1 = nn.Conv2d(32, 32, self.filter_size_NetD, stride=2, padding=padding_NetD)
@@ -189,13 +189,21 @@ class NetD(nn.Module):
 
         s = self.conv_in(s)
         s = self.LR(self.B1(self.conv_D1(s)))
+        # s = self.drops(s)
         s = self.LR(self.B2(self.conv_D2(s)))
+        # s = self.drops(s)
         s = self.LR(self.B3(self.conv_D3(s)))
+        # s = self.drops(s)
         s = self.LR(self.B4(self.conv_D4(s)))
+        # s = self.drops(s)
         s = self.LR(self.B5(self.conv_D5(s)))
+        # s = self.drops(s)
         s = self.LR(self.B6(self.conv_D6(s)))
+        # s = self.drops(s)
         s = self.LR(self.B7(self.conv_D7(s)))
+        # s = self.drops(s)
         s = self.LR(self.B8(self.conv_D8(s)))
+        # s = self.drops(s)
         s = self.LR(self.B9(self.conv_D9(s)))
         D = self.sigmoid_out(self.dense_D10(s))
 

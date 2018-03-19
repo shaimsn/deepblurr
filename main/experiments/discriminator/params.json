@@ -1,7 +1,7 @@
 {
 
     "learning_rate": 5e-4,
-    "train_batch_size": 16,
+    "train_batch_size": 8,
     "eval_batch_size": 1,
     "num_epochs": 20,
     "dropout_rate":0.80,
@@ -12,8 +12,8 @@
     "filter_size_L1":5,
     "save_image_epochs": 2,
  
-    "learning_rate_NetD": 5e-3,
-    "filter_size_NetD": 5,
+    "learning_rate_NetD": 5e-6,
+    "filter_size_NetD": 6,
     "adv_loss_coeff": 5e-2,
     "train_generator": "false"
 

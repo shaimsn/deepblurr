@@ -111,19 +111,20 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
             d_fake_decision = torch.clamp(d_fake_decision, min=0.0, max=1.0)
             # This is loss function
             d_fake_error = criterion(torch.squeeze(d_fake_decision), Variable(label.fill_(fake_label)))
+            dis_loss = d_fake_error+d_real_error
             d_fake_error.backward()
             optimizerD.step()  # only optimizes D's parameters
-            dis_loss = d_fake_error+d_real_error
 
             # train G on D's response but do not train D on these labels
             # TODO do I need to use the next batch??
             model.zero_grad()
+            modelD.zero_grad()
             output_batch = model(train_batch)
             g_fake_decision = modelD(output_batch)
 
             if params.train_generator == 'true':
                 adv_loss = criterion(torch.squeeze(g_fake_decision), Variable(label.fill_(real_label)))
-
+                
                 if args.ssim == 'true':
                     # want to fool so set as true (uses L2 and Adv loss)
 
@@ -160,20 +161,22 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
                     reg_loss_avg.update(reg_loss.data[0])
                     adv_loss_avg.update(adv_loss.data[0])
                     t.set_postfix(
-                        loss='reg: {:05.7f}  + gen: {:05.7f} + dis: {:05.7f}'.format(reg_loss_avg(), adv_loss_avg(),
-                                                                                     dis_loss_avg()))
+                        loss='reg: {:05.7f}  + gen: {:05.7f} + dis: {:05.7f}'.format(reg_loss_avg(), 
+                                                                                     adv_loss_avg().data[0],
+                                                                                     dis_loss_avg().data[0]))
             else:
                 dis_loss_avg.update(dis_loss.data[0])
-                t.set_postfix(dis_loss='{:05.7f} => real:{}, fake: {} '.format(dis_loss_avg(), d_real_decision,
-                                                                               d_fake_decision))
+                t.set_postfix(dis_loss='{:05.7f} => real:{}, fake: {} '.format(dis_loss_avg(), 
+                                                                               np.reshape(d_real_decision[:3], -1).astype(float),
+                                                                               np.reshape(d_fake_decision[:3], -1).astype(float)))
 
             t.update()
 
-    # if params.train_generator == 'true':
-    # compute mean of all metrics in summary
-    metrics_mean = {metric:np.mean([x[metric] for x in summ]) for metric in summ[0]}
-    metrics_string = " ; ".join("{}: {:05.7f}".format(k, v) for k, v in metrics_mean.items())
-    logging.info("- Train metrics: " + metrics_string)
+    if params.train_generator == 'true':
+        # compute mean of all metrics in summary
+        metrics_mean = {metric:np.mean([x[metric] for x in summ]) for metric in summ[0]}
+        metrics_string = " ; ".join("{}: {:05.7f}".format(k, v) for k, v in metrics_mean.items())
+        logging.info("- Train metrics: " + metrics_string)
 
 
 def train_and_evaluate(model, modelD, train_dataloader, val_dataloader, optimizer, optimizerD, loss_fn, metrics, params, model_dir,

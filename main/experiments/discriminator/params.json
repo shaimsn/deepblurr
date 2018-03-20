@@ -13,7 +13,7 @@
     "save_image_epochs": 2,
  
     "learning_rate_NetD": 5e-6,
-    "filter_size_NetD": 6,
+    "filter_size_NetD": 5,
     "adv_loss_coeff": 5e-2,
     "train_generator": "false"
 

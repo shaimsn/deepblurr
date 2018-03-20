@@ -147,13 +147,13 @@ class NetD(nn.Module):
         self.B1 = nn.BatchNorm2d(32)
         self.LR = nn.LeakyReLU(negative_slope=0.2,inplace=True)
 
-        self.conv_D2 = nn.Conv2d(32, 64, self.filter_size_NetD, stride=1, padding=padding_NetD)
+        self.conv_D2 = nn.Conv2d(32, 64, self.filter_size_NetD, stride=4, padding=padding_NetD)
         self.B2 = nn.BatchNorm2d(64)
 
         self.conv_D3 = nn.Conv2d(64, 64, self.filter_size_NetD, stride=2, padding=padding_NetD)
         self.B3 = nn.BatchNorm2d(64)
 
-        self.conv_D4 = nn.Conv2d(64, 128, self.filter_size_NetD, stride=1, padding=padding_NetD)
+        self.conv_D4 = nn.Conv2d(64, 128, self.filter_size_NetD, stride=4, padding=padding_NetD)
         self.B4 = nn.BatchNorm2d(128)
 
         self.conv_D5 = nn.Conv2d(128, 128, self.filter_size_NetD, stride=4, padding=padding_NetD)
@@ -172,9 +172,9 @@ class NetD(nn.Module):
         self.B9 = nn.BatchNorm2d(512)
 
         self.dense_D10 = nn.Conv2d(512, 1, 1, stride =1, padding=0)
+        self.dense_new = nn.Conv2d(128, 1, 1, stride=1, padding =0)
+        self.dense_out = nn.Linear(16*16, 1) 
 
-        self.dense_new = nn.Conv2d(128,32, 1, stride=1, padding =0)
-        self.dense_hid = nn.Linear(32,1)
         self.sigmoid_out = nn.Sigmoid()
 
     def forward(self, s):
@@ -190,32 +190,33 @@ class NetD(nn.Module):
         Note: the dimensions after each step are provided
         """
 
-        # s = self.conv_in(s)
-        # s = self.LR(self.B1(self.conv_D1(s)))
-        # # s = self.drops(s)
-        # s = self.LR(self.B2(self.conv_D2(s)))
-        # # s = self.drops(s)
-        # s = self.LR(self.B3(self.conv_D3(s)))
-        # # s = self.drops(s)
-        # s = self.LR(self.B4(self.conv_D4(s)))
-        # # s = self.drops(s)
-        # s = self.LR(self.B5(self.conv_D5(s)))
-        # # s = self.drops(s)
-        # s = self.LR(self.B6(self.conv_D6(s)))
-        # # s = self.drops(s)
-        # s = self.LR(self.B7(self.conv_D7(s)))
-        # # s = self.drops(s)
-        # s = self.LR(self.B8(self.conv_D8(s)))
-        # # s = self.drops(s)
-        # s = self.LR(self.B9(self.conv_D9(s)))
-        # D = self.sigmoid_out(self.dense_D10(s))
+        #s = self.conv_in(s)
+        #s = self.LR(self.B1(self.conv_D1(s)))
+        # s = self.drops(s)
+        #s = self.LR(self.B2(self.conv_D2(s)))
+        # s = self.drops(s)
+        #s = self.LR(self.B3(self.conv_D3(s)))
+        # s = self.drops(s)
+        #s = self.LR(self.B4(self.conv_D4(s)))
+        # s = self.drops(s)
+        #s = self.LR(self.B5(self.conv_D5(s)))
+        # s = self.drops(s)
+        #s = self.LR(self.B6(self.conv_D6(s)))
+        # s = self.drops(s)
+        #s = self.LR(self.B7(self.conv_D7(s)))
+        # s = self.drops(s)
+        #s = self.LR(self.B8(self.conv_D8(s)))
+        # s = self.drops(s)
+        #s = self.LR(self.B9(self.conv_D9(s)))
+        #D = self.sigmoid_out(self.dense_D10(s))
 
         s = self.conv_in(s)
         s = self.LR(self.B2(self.conv_D2(s)))
         s = self.LR(self.B4(self.conv_D4(s)))
         s = self.LR(self.dense_new(s))
-        s = self.dense_hid(s)
-        s = self.sigmoid_out(s)
+        s = s.view(-1, 16*16)
+        s = self.dense_out(s)
+        D = self.sigmoid_out(s)
         return D
 
 

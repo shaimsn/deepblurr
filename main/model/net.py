@@ -212,8 +212,11 @@ class NetD(nn.Module):
 
         s = self.conv_in(s)
         s = self.LR(self.B2(self.conv_D2(s)))
+        s = self.drops(s)
         s = self.LR(self.B4(self.conv_D4(s)))
+        s = self.drops(s)
         s = self.LR(self.dense_new(s))
+        s = self.drops(s)
         s = s.view(-1, 16*16)
         s = self.dense_out(s)
         D = self.sigmoid_out(s)
@@ -270,7 +273,7 @@ def psnr(outputs, labels):
         mse = np.mean(np.square(outputs[batch] - labels[batch]))
         true_min, true_max = np.min(outputs[batch]), np.max(outputs[batch])
         data_range = true_max - true_min
-        psnrs[batch] = 10 * np.log10((data_range ** 2) / (mse+0.0001))
+        psnrs[batch] = 10 * np.log10((data_range ** 2+0.0001) / (mse+0.0001))
     return np.mean(psnrs)
 
 

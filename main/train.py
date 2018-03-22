@@ -26,7 +26,7 @@ parser.add_argument('--model_dir', default='experiments/discriminator', help="Di
 parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
                     training")  # 'best' or 'train'
-parser.add_argument('--restore_fileD', default=None,
+parser.add_argument('--restore_fileD', default='last_gan',
                     help="Optional, name of the file in --model_dir containing weights for discriminator to reload before \
                     training")
 
@@ -157,13 +157,15 @@ def train(model, modelD, optimizer, optimizerD, loss_fn, dataloader, metrics, pa
                     summ.append(summary_batch)
 
                     # update the average loss
-                    loss_avg.update(loss.data[0])
+                    dis_loss_avg.update(dis_loss.data[0])
                     reg_loss_avg.update(reg_loss.data[0])
                     adv_loss_avg.update(adv_loss.data[0])
                     t.set_postfix(
-                        loss='reg: {:05.7f}  + gen: {:05.7f} + dis: {:05.7f}'.format(reg_loss_avg(), 
-                                                                                     adv_loss_avg().data[0],
-                                                                                     dis_loss_avg().data[0]))
+                        loss='reg: {:05.7f}  gen: {:05.7f}  dis: {:05.7f} => real:{}, fake:{}'.format(reg_loss_avg(), 
+                                                                                     adv_loss_avg(),
+                                                                                     dis_loss_avg(),
+                                                                               np.reshape(d_real_decision[:3], -1).astype(float),
+                                                                               np.reshape(d_fake_decision[:3], -1).astype(float)))
             else:
                 dis_loss_avg.update(dis_loss.data[0])
                 t.set_postfix(dis_loss='{:05.7f} => real:{}, fake: {} '.format(dis_loss_avg(), 

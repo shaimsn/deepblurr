@@ -10,11 +10,11 @@
     "num_workers": 4,
     "num_resblocks":12,
     "filter_size_L1":5,
-    "save_image_epochs": 2,
+    "save_image_epochs": 1,
  
-    "learning_rate_NetD": 5e-6,
+    "learning_rate_NetD": 5e-4,
     "filter_size_NetD": 5,
-    "adv_loss_coeff": 5e-2,
-    "train_generator": "false"
+    "adv_loss_coeff": 5e-5,
+    "train_generator": "true"
 
 }
